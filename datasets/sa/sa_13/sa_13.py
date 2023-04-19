@@ -1,15 +1,9 @@
-# -*- coding: utf-8 -*-
-# %% bibtex
-
 '''
-@article{go2009twitter_sentiment140,
-  title={Twitter sentiment classification using distant supervision},
-  author={Go, Alec and Bhayani, Richa and Huang, Lei},
-  journal={CS224N project report, Stanford},
-  volume={1},
-  number={12},
-  pages={2009},
-  year={2009}
+@inproceedings{marc_reviews_amazon_multi,
+    title={The Multilingual Amazon Reviews Corpus},
+    author={Keung, Phillip and Lu, Yichao and Szarvas, György and Smith, Noah A.},
+    booktitle={Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing},
+    year={2020}
 }
 '''
 
@@ -22,6 +16,12 @@ import re
 import html
 import fasttext
 from bs4 import BeautifulSoup
+#from zipfile import ZipFile
+#import tarfile
+import csv
+import io
+import warnings
+warnings.filterwarnings("ignore")
 
 # %% loading language detection model
 language_identification_model = fasttext.load_model('/mnt/c/Users/Acer/Documents/Corpora/fasttext/lid.176.bin') # or lid.176.ftz lid.176.bin
@@ -29,13 +29,15 @@ language_identification_model = fasttext.load_model('/mnt/c/Users/Acer/Documents
 # %% function to reduce the noise before language identification
 def noise_mitigation(aux):
     
+    #string = aux.decode('utf-8')
+    #string = str(string)
     string = str(aux)
+    
     string = re.sub('\s\#\s|\@user\s?','',string)
     string = re.sub('\-\-+|\s\-\s',' ',string)
     string = re.sub('\s?\@\s',' at ',string)
     string = re.sub(r'\\n','',string)
     string = re.sub(r'(https?:(\/\/))?(www\.)?(\w+)\.(\w+)(\.?\/?)+([a-zA-Z0–9@:%&._\+-?!~#=]*)?(\.?\/)?([a-zA-Z0–9@:%&._\/+-~?!#=]*)?(\.?\/)?',' ',string) # websites
-    string = re.sub('\@\S*\s','',string)
     string = re.sub('w\/|W\/','with',string)
     
     string = html.escape(string)
@@ -143,20 +145,26 @@ def detect_language(instance):
     
     return aux
 
-# %% loading datasets
-dataset = load_dataset("sentiment140")
+# %% loading dataset
+dataset = load_dataset("amazon_reviews_multi",'en')
 
 # %% creating dataframes
-df_test = pd.DataFrame([dataset['test']['text'],dataset['test']['sentiment']]).T
-df_train = pd.DataFrame([dataset['train']['text'],dataset['train']['sentiment']]).T
-df_test.columns = ['text','label']
-df_train.columns = ['text','label']
+df_test_aux = pd.DataFrame([dataset['test']['review_body'],dataset['test']['stars'],dataset['test']['language']]).T
+df_validation_aux = pd.DataFrame([dataset['validation']['review_body'],dataset['validation']['stars'],dataset['validation']['language']]).T
+df_test = pd.concat([df_validation_aux,df_test_aux])
+df_test.columns = ['text','label','language']
+df_test = df_test[df_test['language'] == 'en']
+df_test = df_test[['text','label']]
+df_train = pd.DataFrame([dataset['train']['review_body'],dataset['train']['stars'],dataset['train']['language']]).T
+df_train.columns = ['text','label','language']
+df_train = df_train[df_train['language'] == 'en']
+df_train = df_train[['text','label']]
 
 
 # %% train set
 df_train['text'] = df_train['text'].apply(lambda x: noise_mitigation(x))
-df_train['language'] = df_train['text'].apply(lambda x: detect_language(x))
-df_train = df_train[df_train['language'] == 'en']
+#df_train['language'] = df_train['text'].apply(lambda x: detect_language(x))
+#df_train = df_train[df_train['language'] == 'en']
 df_train['text'] = df_train['text'].apply(lambda x: noise_mitigation_lang_id(x))
 df_train = df_train.drop_duplicates(subset=['text'],keep='first')
 df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)[['text','label']]
@@ -164,19 +172,19 @@ df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)[['text
 
 # %% test set
 df_test['text'] = df_test['text'].apply(lambda x: noise_mitigation(x))
-df_test['language'] = df_test['text'].apply(lambda x: detect_language(x))
-df_test = df_test[df_test['language'] == 'en']
+#df_test['language'] = df_test['text'].apply(lambda x: detect_language(x))
+#df_test = df_test[df_test['language'] == 'en']
 df_test['text'] = df_test['text'].apply(lambda x: noise_mitigation_lang_id(x))
 df_test = df_test.drop_duplicates(subset=['text'],keep='first')
 df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)[['text','label']]
 
 # %% saving to csv multiclass dataframe
 os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Multiclass/Sentiment_Analysis')
-df_train.to_csv('SA03_Sentiment140_train.csv',sep=';',index=False)
-df_test.to_csv('SA03_Sentiment140_test.csv',sep=';',index=False)
+df_train.to_csv('SA13_Amazon_Reviews_Multi_train.csv',sep=';',index=False)
+df_test.to_csv('SA13_Amazon_Reviews_Multi_test.csv',sep=';',index=False)
 
 # %% creating binary dataframes
-os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Sentiment140')
+os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Amazon_Reviews_Multi')
 unique_classes = sorted(df_train['label'].unique())
 
 list_csv = []
@@ -185,13 +193,13 @@ for i in tqdm(range(len(unique_classes))):
         if i != j:
             # train
             df_aux = df_train.loc[(df_train['label'] == unique_classes[i]) | (df_train['label'] == unique_classes[j])]
-            df_aux.to_csv(f'SA03_Sentiment140_Binary_{i}_{j}_train.csv',sep=';',index=False)
-            list_csv.append([f'SA03_Sentiment140_Binary_{i}_{j}_train.csv',f'{unique_classes[i],unique_classes[j]}'])
+            df_aux.to_csv(f'SA13_Amazon_Reviews_Multi_Binary_train_{i+1}_{j+1}.csv',sep=';',index=False)
+            list_csv.append([f'SA13_Amazon_Reviews_Multi_Binary_train_{i+1}_{j+1}.csv',f'{unique_classes[i],unique_classes[j]}'])
             # test
             df_aux = df_test.loc[(df_test['label'] == unique_classes[i]) | (df_test['label'] == unique_classes[j])]
-            df_aux.to_csv(f'SA03_Sentiment140_Binary_{i}_{j}_test.csv',sep=';',index=False)
-            list_csv.append([f'SA03_Sentiment140_Binary_{i}_{j}_test.csv',f'{unique_classes[i],unique_classes[j]}'])
+            df_aux.to_csv(f'SA13_Amazon_Reviews_Multi_Binary_test_{i+1}_{j+1}.csv',sep=';',index=False)
+            list_csv.append([f'SA13_Amazon_Reviews_Multi_Binary_test_{i+1}_{j+1}.csv',f'{unique_classes[i],unique_classes[j]}'])
 
 os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Explained')
 df_list_csv = pd.DataFrame(list_csv,columns=['file_name','classes'])
-df_list_csv.to_csv('SA02_Affective_Text_Binary_explained.csv',sep=';',index=False)
+df_list_csv.to_csv('SA13_Amazon_Reviews_Multi_Binary_explained.csv',sep=';',index=False)

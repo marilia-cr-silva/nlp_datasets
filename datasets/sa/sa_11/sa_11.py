@@ -1,47 +1,54 @@
-# -*- coding: utf-8 -*-
-# %% bibtex
-
 '''
-@article{go2009twitter_sentiment140,
-  title={Twitter sentiment classification using distant supervision},
-  author={Go, Alec and Bhayani, Richa and Huang, Lei},
-  journal={CS224N project report, Stanford},
-  volume={1},
-  number={12},
-  pages={2009},
-  year={2009}
+@misc{kaggle_apple_twitter_sentiment_texts,
+  author={Kaggle},
+  title = {Apple Twitter Sentiment Texts},
+  howpublished = {\url{https://www.kaggle.com/datasets/seriousran/appletwittersentimenttexts}},
+  note = {Accessed: 2022-04-06},
+  year={2020}
 }
 '''
 
 # %% loading libraries
 import pandas as pd
 from tqdm import tqdm
-from datasets import load_dataset
 import os
 import re
 import html
-import fasttext
 from bs4 import BeautifulSoup
+import warnings
+warnings.filterwarnings("ignore")
 
-# %% loading language detection model
-language_identification_model = fasttext.load_model('/mnt/c/Users/Acer/Documents/Corpora/fasttext/lid.176.bin') # or lid.176.ftz lid.176.bin
-
-# %% function to reduce the noise before language identification
+# %% function to reduce the noise
 def noise_mitigation(aux):
     
     string = str(aux)
-    string = re.sub('\s\#\s|\@user\s?','',string)
+    new_string = string.split('\n')
+    string = ' '.join(new_string)
+    string = re.sub('\s\#\s|\@user\s?|Says\s|\!+\sRT\s|\s?RT\s|\s?URL','',string)
     string = re.sub('\-\-+|\s\-\s',' ',string)
     string = re.sub('\s?\@\s',' at ',string)
-    string = re.sub(r'\\n','',string)
     string = re.sub(r'(https?:(\/\/))?(www\.)?(\w+)\.(\w+)(\.?\/?)+([a-zA-Z0–9@:%&._\+-?!~#=]*)?(\.?\/)?([a-zA-Z0–9@:%&._\/+-~?!#=]*)?(\.?\/)?',' ',string) # websites
-    string = re.sub('\@\S*\s','',string)
+    string = re.sub('\s?http(s)?\:\/+.*','',string) # shortened url
     string = re.sub('w\/|W\/','with',string)
-    
+    string = re.sub('\\&amp;|\s\&\s',' and ',string)
+    string = re.sub('^,\s?|^\.\s?|^:|\||《|》|•','',string)
+    string = re.sub("\d{2}\:\d{2}"
+                    "|\,?\s?(\d{1,2})?\s?\S{3,10}\s\d{4}\s?(UTC)?"
+                    "|\S{3,10}\s\d{1,2}\,\s\d{4}\s?(UTC)?"
+                    "|\d{2}\/\d{2}\/\d{2,4}",'',string) # time, dates
+    #    string = re.sub('\@\S*\s','',string)
+
     string = html.escape(string)
     string = html.unescape(string)
     string = BeautifulSoup(string, "lxml")
     string = string.get_text()
+
+
+    new_string = string.split('\"')
+    string = "".join(new_string)    
+
+    new_string = string.split('\'')
+    string = "".join(new_string) 
 
     string = re.sub('aa+','aa',string)
     string = re.sub('bb+','bb',string)
@@ -106,6 +113,7 @@ def noise_mitigation(aux):
 
     string = re.sub('\.\.+','...',string)
     string = re.sub('\s\.','.',string)
+    string = re.sub('\:{2,}',':',string)
     string = re.sub('\"{2,}','"',string)
     string = re.sub('(\!+\?+)+','?!',string)
     string = re.sub('\!\!+','!',string)
@@ -113,85 +121,72 @@ def noise_mitigation(aux):
     string = re.sub('\?\?+','?',string)
     string = re.sub('\s\?','?',string)
     string = re.sub('\s\,',',',string)
-    string = re.sub('\(|\)|\_','',string)
-
-    new_string = string.split()
-    string = ' '.join(new_string)
+    #    string = re.sub('^\"+|^\'+|\"+$|\'+$','',string)
+    #    string = re.sub('^\"+|^\'+|\"+$|\'+$','',string) # if it has several types of quotations in the beginning
     
-    return string
-
-# %% function to reduce the noise after language identification
-
-def noise_mitigation_lang_id(aux):
-    
-    string = str(aux)
     string = re.sub(r'[а-яА-Я]','',string) # Cyrillic characters [\u4000-\u04ff]
     string = re.sub(r'[\u4e00-\u9fff]+','',string) # Chinese characters
     string = re.sub(r'[\u0621-\u064a\ufb50-\ufdff\ufe70-\ufefc]','',string) # Arabic Characters
     string = re.sub('\(\/\S+\)','',string) # e.g., (/message/compose/?to=/r/Pikabu)
-    string = re.sub('\[|\]|\{|\}|\(|\)|\>|\<|\*|\=','',string) # e.g., [](){}
+    string = re.sub('\[|\]|\{|\}|\(|\)|\>|\<|\*|\=|\_|\+','',string) # e.g., [](){}
+    string = re.sub('â€™','\'',string)
+    string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"','',string)
+    
+    try:
+        string = string.encode('latin-1').decode('utf-8')
+    except:
+        pass
+    
+    string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"','',string)
+    new_string = string.split()
+    string = ' '.join(new_string)
+    string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"','',string)
     new_string = string.split()
     string = ' '.join(new_string)
     
-    return string
+    if len(string) > 5:
+        return string
+    else:
+        return 'remove'
 
+# %% creating dataframe
+os.chdir('/mnt/c/Users/Acer/Documents/Corpora/downloaded/SA11_Apple')
 
-# %% function to identify language
-def detect_language(instance):
-    
-    aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
-    
-    return aux
-
-# %% loading datasets
-dataset = load_dataset("sentiment140")
-
-# %% creating dataframes
-df_test = pd.DataFrame([dataset['test']['text'],dataset['test']['sentiment']]).T
-df_train = pd.DataFrame([dataset['train']['text'],dataset['train']['sentiment']]).T
-df_test.columns = ['text','label']
+# %% train
+df_train = pd.read_csv('apple-twitter-sentiment-texts.csv')
 df_train.columns = ['text','label']
-
-
-# %% train set
 df_train['text'] = df_train['text'].apply(lambda x: noise_mitigation(x))
-df_train['language'] = df_train['text'].apply(lambda x: detect_language(x))
-df_train = df_train[df_train['language'] == 'en']
-df_train['text'] = df_train['text'].apply(lambda x: noise_mitigation_lang_id(x))
+df_train = df_train[df_train['text'] != 'remove']
 df_train = df_train.drop_duplicates(subset=['text'],keep='first')
-df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)[['text','label']]
-
-
-# %% test set
-df_test['text'] = df_test['text'].apply(lambda x: noise_mitigation(x))
-df_test['language'] = df_test['text'].apply(lambda x: detect_language(x))
-df_test = df_test[df_test['language'] == 'en']
-df_test['text'] = df_test['text'].apply(lambda x: noise_mitigation_lang_id(x))
-df_test = df_test.drop_duplicates(subset=['text'],keep='first')
-df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)[['text','label']]
+df_train = df_train.dropna(subset='label')
+df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)
 
 # %% saving to csv multiclass dataframe
 os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Multiclass/Sentiment_Analysis')
-df_train.to_csv('SA03_Sentiment140_train.csv',sep=';',index=False)
-df_test.to_csv('SA03_Sentiment140_test.csv',sep=';',index=False)
+df_train.to_csv('SA11_Multi_train.csv',sep=';',index=False)
 
 # %% creating binary dataframes
-os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Sentiment140')
+os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis')
 unique_classes = sorted(df_train['label'].unique())
 
-list_csv = []
+list_file_name = []
+list_label_01 = []
+list_label_02 = []
+
 for i in tqdm(range(len(unique_classes))):
     for j in range(i+1,len(unique_classes)):
-        if i != j:
-            # train
-            df_aux = df_train.loc[(df_train['label'] == unique_classes[i]) | (df_train['label'] == unique_classes[j])]
-            df_aux.to_csv(f'SA03_Sentiment140_Binary_{i}_{j}_train.csv',sep=';',index=False)
-            list_csv.append([f'SA03_Sentiment140_Binary_{i}_{j}_train.csv',f'{unique_classes[i],unique_classes[j]}'])
-            # test
-            df_aux = df_test.loc[(df_test['label'] == unique_classes[i]) | (df_test['label'] == unique_classes[j])]
-            df_aux.to_csv(f'SA03_Sentiment140_Binary_{i}_{j}_test.csv',sep=';',index=False)
-            list_csv.append([f'SA03_Sentiment140_Binary_{i}_{j}_test.csv',f'{unique_classes[i],unique_classes[j]}'])
-
+        # train
+        csv_file_name_train = f'SA11_Binary_{i}_{j}_train.csv'
+        df_aux = df_train.loc[(df_train['label'] == unique_classes[i]) | (df_train['label'] == unique_classes[j])]
+        df_aux.to_csv(csv_file_name_train,sep=';',index=False)
+        list_file_name.append(csv_file_name_train)
+        list_label_01.append(unique_classes[i])
+        list_label_02.append(unique_classes[j])
+        
+# %% creating explanation csv file
 os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Explained')
-df_list_csv = pd.DataFrame(list_csv,columns=['file_name','classes'])
-df_list_csv.to_csv('SA02_Affective_Text_Binary_explained.csv',sep=';',index=False)
+df_list_csv = pd.DataFrame([list_file_name,list_label_01,list_label_02]).T
+df_list_csv.columns = ['file_name','label_01','label_02']
+aux_csv = pd.read_csv('SA_Binary_explained.csv',sep=';')
+df_final_csv = pd.concat([aux_csv,df_list_csv])
+df_final_csv.to_csv('SA_Binary_explained.csv',sep=';',index=False)

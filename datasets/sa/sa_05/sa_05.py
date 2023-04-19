@@ -32,7 +32,7 @@ import fasttext
 from bs4 import BeautifulSoup
 
 # %% loading language detection model
-language_identification_model = fasttext.load_model('/mnt/c/Users/Marília/Documents/Corpora/fasttext/lid.176.bin') # or lid.176.ftz lid.176.bin
+language_identification_model = fasttext.load_model('/mnt/c/Users/Acer/Documents/Corpora/fasttext/lid.176.bin') # or lid.176.ftz lid.176.bin
 
 # %% function to reduce the noise before language identification
 def noise_mitigation(aux):
@@ -186,6 +186,6 @@ df_test = df_test.drop_duplicates(subset=['text'],keep='first')
 df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)[['text','label']]
 
 # %% creating .csv
-os.chdir('/mnt/c/Users/Marília/Documents/Corpora/Binary/Sentiment_Analysis/Amazon_Polarity')
+os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Amazon_Polarity')
 df_train.to_csv(f'SA05_Amazon_Polarity_Binary_train.csv',sep=';',index=False)
 df_test.to_csv(f'SA05_Amazon_Polarity_Binary_test.csv',sep=';',index=False)

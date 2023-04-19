@@ -24,7 +24,7 @@ import html
 import tarfile
 
 # %% loading file
-os.chdir('/mnt/c/Users/Marília/Documents/Corpora/downloaded')
+os.chdir('/mnt/c/Users/Acer/Documents/Corpora/downloaded')
 tar = tarfile.open("AffectiveText.Semeval.2007.tar.gz", "r:gz")
 
 # %% function to create dataframes
@@ -120,12 +120,12 @@ def create_dataframes():
 df_train, df_test = create_dataframes()
 
 # %% saving to csv multiclass dataframe
-os.chdir('/mnt/c/Users/Marília/Documents/Corpora/Multiclass/Sentiment_Analysis')
+os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Multiclass/Sentiment_Analysis')
 df_train.to_csv('SA02_Affective_Text_train.csv',sep=';',index=False)
 df_test.to_csv('SA02_Affective_Text_test.csv',sep=';',index=False)
 
 # %% creating binary dataframes
-os.chdir('/mnt/c/Users/Marília/Documents/Corpora/Binary/Sentiment_Analysis/Affective_Text')
+os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Affective_Text')
 unique_classes = sorted(df_train['label'].unique())
 
 list_csv = []
@@ -141,6 +141,6 @@ for i in tqdm(range(len(unique_classes))):
             df_aux.to_csv(f'SA02_Affective_Text_Binary_{i}_{j}_test.csv',sep=';',index=False)
             list_csv.append([f'SA02_Affective_Text_Binary_{i}_{j}_test.csv',f'{unique_classes[i],unique_classes[j]}'])
 
-os.chdir('/mnt/c/Users/Marília/Documents/Corpora/Binary/Sentiment_Analysis/Explained')
+os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Explained')
 df_list_csv = pd.DataFrame(list_csv,columns=['file_name','classes'])
 df_list_csv.to_csv('SA02_Affective_Text_Binary_explained.csv',sep=';',index=False)

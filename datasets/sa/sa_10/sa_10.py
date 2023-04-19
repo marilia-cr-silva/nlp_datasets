@@ -1,16 +1,20 @@
-# -*- coding: utf-8 -*-
-# %% bibtex
-
 '''
-@article{go2009twitter_sentiment140,
-  title={Twitter sentiment classification using distant supervision},
-  author={Go, Alec and Bhayani, Richa and Huang, Lei},
-  journal={CS224N project report, Stanford},
-  volume={1},
-  number={12},
-  pages={2009},
-  year={2009}
-}
+"@inproceedings{saravia-etal-2018-carer-emotion,
+    title = ""{CARER}: Contextualized Affect Representations for Emotion Recognition"",
+    author = ""Saravia, Elvis  and
+      Liu, Hsien-Chi Toby  and
+      Huang, Yen-Hao  and
+      Wu, Junlin  and
+      Chen, Yi-Shin"",
+    booktitle = ""Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing"",
+    month = oct # ""-"" # nov,
+    year = ""2018"",
+    address = ""Brussels, Belgium"",
+    publisher = ""Association for Computational Linguistics"",
+    url = ""https://www.aclweb.org/anthology/D18-1404"",
+    doi = ""10.18653/v1/D18-1404"",
+    pages = ""3687--3697"",
+}"
 '''
 
 # %% loading libraries
@@ -22,6 +26,12 @@ import re
 import html
 import fasttext
 from bs4 import BeautifulSoup
+#from zipfile import ZipFile
+#import tarfile
+import csv
+import io
+import warning
+warnings.filterwarnings("ignore")
 
 # %% loading language detection model
 language_identification_model = fasttext.load_model('/mnt/c/Users/Acer/Documents/Corpora/fasttext/lid.176.bin') # or lid.176.ftz lid.176.bin
@@ -29,13 +39,14 @@ language_identification_model = fasttext.load_model('/mnt/c/Users/Acer/Documents
 # %% function to reduce the noise before language identification
 def noise_mitigation(aux):
     
+    #string = aux.decode('utf-8')
+    #string = str(string)
     string = str(aux)
     string = re.sub('\s\#\s|\@user\s?','',string)
     string = re.sub('\-\-+|\s\-\s',' ',string)
     string = re.sub('\s?\@\s',' at ',string)
     string = re.sub(r'\\n','',string)
     string = re.sub(r'(https?:(\/\/))?(www\.)?(\w+)\.(\w+)(\.?\/?)+([a-zA-Z0–9@:%&._\+-?!~#=]*)?(\.?\/)?([a-zA-Z0–9@:%&._\/+-~?!#=]*)?(\.?\/)?',' ',string) # websites
-    string = re.sub('\@\S*\s','',string)
     string = re.sub('w\/|W\/','with',string)
     
     string = html.escape(string)
@@ -143,12 +154,13 @@ def detect_language(instance):
     
     return aux
 
-# %% loading datasets
-dataset = load_dataset("sentiment140")
+# %% loading dataset
 
 # %% creating dataframes
-df_test = pd.DataFrame([dataset['test']['text'],dataset['test']['sentiment']]).T
-df_train = pd.DataFrame([dataset['train']['text'],dataset['train']['sentiment']]).T
+df_test_aux = pd.DataFrame([dataset['test']['text'],dataset['test']['label']]).T
+df_validation_aux = pd.DataFrame([dataset['validation']['text'],dataset['validation']['label']]).T
+df_test = pd.concat([df_validation_aux,df_test_aux])
+df_train = pd.DataFrame([dataset['train']['text'],dataset['train']['label']]).T
 df_test.columns = ['text','label']
 df_train.columns = ['text','label']
 
@@ -169,14 +181,15 @@ df_test = df_test[df_test['language'] == 'en']
 df_test['text'] = df_test['text'].apply(lambda x: noise_mitigation_lang_id(x))
 df_test = df_test.drop_duplicates(subset=['text'],keep='first')
 df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)[['text','label']]
+dataset = load_dataset("emotion")
 
 # %% saving to csv multiclass dataframe
 os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Multiclass/Sentiment_Analysis')
-df_train.to_csv('SA03_Sentiment140_train.csv',sep=';',index=False)
-df_test.to_csv('SA03_Sentiment140_test.csv',sep=';',index=False)
+df_train.to_csv('SA10_Emotion_train.csv',sep=';',index=False)
+df_test.to_csv('SA10_Emotion_test.csv',sep=';',index=False)
 
 # %% creating binary dataframes
-os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Sentiment140')
+os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Emotion')
 unique_classes = sorted(df_train['label'].unique())
 
 list_csv = []
@@ -185,13 +198,13 @@ for i in tqdm(range(len(unique_classes))):
         if i != j:
             # train
             df_aux = df_train.loc[(df_train['label'] == unique_classes[i]) | (df_train['label'] == unique_classes[j])]
-            df_aux.to_csv(f'SA03_Sentiment140_Binary_{i}_{j}_train.csv',sep=';',index=False)
-            list_csv.append([f'SA03_Sentiment140_Binary_{i}_{j}_train.csv',f'{unique_classes[i],unique_classes[j]}'])
+            df_aux.to_csv(f'SA10_Emotion_Binary_train_{i}_{j}.csv',sep=';',index=False)
+            list_csv.append([f'SA10_Emotion_Binary_train_{i}_{j}.csv',f'{unique_classes[i],unique_classes[j]}'])
             # test
             df_aux = df_test.loc[(df_test['label'] == unique_classes[i]) | (df_test['label'] == unique_classes[j])]
-            df_aux.to_csv(f'SA03_Sentiment140_Binary_{i}_{j}_test.csv',sep=';',index=False)
-            list_csv.append([f'SA03_Sentiment140_Binary_{i}_{j}_test.csv',f'{unique_classes[i],unique_classes[j]}'])
+            df_aux.to_csv(f'SA10_Emotion_Binary_test_{i}_{j}.csv',sep=';',index=False)
+            list_csv.append([f'SA10_Emotion_Binary_test_{i}_{j}.csv',f'{unique_classes[i],unique_classes[j]}'])
 
 os.chdir('/mnt/c/Users/Acer/Documents/Corpora/Binary/Sentiment_Analysis/Explained')
 df_list_csv = pd.DataFrame(list_csv,columns=['file_name','classes'])
-df_list_csv.to_csv('SA02_Affective_Text_Binary_explained.csv',sep=';',index=False)
+df_list_csv.to_csv('SA10_Emotion_Binary_explained.csv',sep=';',index=False)
