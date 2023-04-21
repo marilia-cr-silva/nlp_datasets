@@ -148,14 +148,6 @@ df_content.rename(
     axis=1)
 
 # %%
-
-folders = ['train_split']
-files_in_curr_dir = os.listdir()
-for folder in folders:
-    if folder not in files_in_curr_dir:
-        os.mkdir(folder)
-
-# %%
 df_train, df_test = train_test_split(
     df_content, test_size=0.3, random_state=42,shuffle = True)
 
