@@ -143,7 +143,8 @@ df_content.rename(
     },
     inplace=True,
     axis=1)
-
+    
+df_content = df_content.drop_duplicates(subset=["text"],keep="first")
 # %%
 df_train, df_test = train_test_split(
     df_content, test_size=0.3, random_state=42,shuffle = True)

@@ -174,7 +174,7 @@ df_fake_news = df_fake.append(df_legit, ignore_index=True)
 
 # %% saving csv
 goto_root()
-
+df_fake_news = df_fake_news.drop_duplicates(subset=["text"],keep="first")
 df_train, df_test = train_test_split(
     df_fake_news, test_size=0.3, random_state=42,shuffle = True)
 

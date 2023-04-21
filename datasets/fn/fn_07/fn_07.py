@@ -142,6 +142,7 @@ df_content = pd.DataFrame(lines)
 df_content = df_content[["claim", "label"]]
 df_content.rename({'claim': 'text'}, axis=1, inplace=True)
 df_content['label'] = df_content['label'].apply(lambda x: x.upper())
+df_content = df_content.drop_duplicates(subset=["text"],keep="first")
 
 # %%
 df_train, df_test = train_test_split(

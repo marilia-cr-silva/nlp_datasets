@@ -23,7 +23,6 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 from datasets import load_dataset
-from sklearn.model_selection import train_test_split
 import json
 import os
 import re
