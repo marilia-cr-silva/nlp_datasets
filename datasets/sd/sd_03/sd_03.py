@@ -133,7 +133,7 @@ list_files = [f for f in os.listdir('.') if os.path.isfile(f)]
 for count_files, file_name in enumerate(list_files):
     list_tokens = file_name.split("_")
     print(list_tokens)
-    if list_tokens[0] == "trump" and list_tokens[2] == "train":
+    if list_tokens[0] == "biden" and list_tokens[2] == "train":
         df_train = pd.read_csv(list_files[count_files])
         df_train['text'] = df_train['text'].apply(lambda x: noise_mitigation(x))
         df_train.assign(
@@ -142,7 +142,7 @@ for count_files, file_name in enumerate(list_files):
         df_train = df_train.drop_duplicates(subset=['text'],keep='first')
         df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)   
         df_train = df_train[['text','label','tweet_id']]
-    elif list_tokens[0] == "trump" and list_tokens[2] == "test":
+    elif list_tokens[0] == "biden" and list_tokens[2] == "test":
         df_test = pd.read_csv(list_files[count_files])
         df_test['text'] = df_test['text'].apply(lambda x: noise_mitigation(x))
         df_test.assign(
@@ -156,8 +156,8 @@ for count_files, file_name in enumerate(list_files):
     
 # %% saving to csv multiclass dataframe
 
-df_train.to_csv(f'sd_04_multi_train.csv',sep=';',index=False)
-df_test.to_csv(f"sd_04_multi_test.csv",sep=";", index=False)
+df_train.to_csv(f'sd_03_multi_train.csv',sep=';',index=False)
+df_test.to_csv(f"sd_03_multi_test.csv",sep=";", index=False)
 
 unique_classes = sorted(df_train['label'].unique())
 
@@ -165,11 +165,11 @@ for i in tqdm(range(len(unique_classes))):
     for j in range(i+1,len(unique_classes)):
         # train
         df_aux = df_train.loc[(df_train["label"] == unique_classes[i]) | (df_train["label"] == unique_classes[j])]
-        df_aux.to_csv(f"sd_04_bin_train_{i}_{j}.csv",sep=";",index=False)
+        df_aux.to_csv(f"sd_03_bin_train_{i}_{j}.csv",sep=";",index=False)
 
         # test
         df_aux = df_test.loc[(df_test["label"] == unique_classes[i]) | (df_test["label"] == unique_classes[j])]
-        df_aux.to_csv(f"sd_04_bin_test_{i}_{j}.csv",sep=";",index=False)
+        df_aux.to_csv(f"sd_03_bin_test_{i}_{j}.csv",sep=";",index=False)
 
 # %% saving explained.csv
 number_classes = len(unique_classes)
@@ -179,4 +179,4 @@ explained_df = pd.DataFrame(
         "label": list(unique_classes)
     }
 )
-explained_df.to_csv('sd_04_explained.csv', sep = ";", index=False)
+explained_df.to_csv('sd_03_explained.csv', sep = ";", index=False)

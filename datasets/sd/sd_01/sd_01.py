@@ -1,25 +1,19 @@
+# %% bibtex
+
 '''
-@inproceedings{kawintiranon-singh-2021-knowledge-presidential_election_2020,
-    title = "Knowledge Enhanced Masked Language Model for Stance Detection",
-    author = "Kawintiranon, Kornraphop  and
-      Singh, Lisa",
-    booktitle = "Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies",
-    month = jun,
-    year = "2021",
-    address = "Online",
-    publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/2021.naacl-main.376",
-    doi = "10.18653/v1/2021.naacl-main.376",
-    pages = "4725--4735",
-}
+"@article{kiesel2019datahyperpartisansemeval,
+  title={Data for pan at semeval 2019 task 4: Hyperpartisan news detection},
+  author={Kiesel, Johannes and Mestre, Maria and Shukla, Rishabh and Vincent, Emmanuel and Corney, David and Adineh, Payam and Stein, Benno and Potthast, Martin},
+  year={2019}
+}"
 '''
 
-# %%
+# %% loading libraries
 
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from zipfile import ZipFile
+from datasets import load_dataset
 import os
 import re
 import html
@@ -123,53 +117,31 @@ def noise_mitigation(aux):
     
     return string
 
+
+# %% loading datasets
+
+dataset = load_dataset("hyperpartisan_news_detection",'byarticle') # by article
+
+# %% creating dataframes
+
+df = pd.DataFrame([dataset['train']['text'],dataset['train']['hyperpartisan']]).T
+df.columns = ['text','label']
+
+# train set
+df['text'] = df['text'].apply(lambda x: noise_mitigation(x))
+df.assign(
+        text=lambda df : df["text"].replace('', np.nan)
+    ).dropna().reset_index(drop=True)
+df = df.drop_duplicates(subset=['text'],keep='first')
+
 # %%
+df_train, df_test = train_test_split(
+    df, test_size=0.3, random_state=42,shuffle = True)
 
-file_name = "2020_us_election_tweets.zip"
-with ZipFile(file_name, 'r') as zip:
-    zip.extractall()
-list_files = [f for f in os.listdir('.') if os.path.isfile(f)]
-
-for count_files, file_name in enumerate(list_files):
-    list_tokens = file_name.split("_")
-    print(list_tokens)
-    if list_tokens[0] == "trump" and list_tokens[2] == "train":
-        df_train = pd.read_csv(list_files[count_files])
-        df_train['text'] = df_train['text'].apply(lambda x: noise_mitigation(x))
-        df_train.assign(
-                text=lambda df : df["text"].replace('', np.nan)
-            ).dropna().reset_index(drop=True)
-        df_train = df_train.drop_duplicates(subset=['text'],keep='first')
-        df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)   
-        df_train = df_train[['text','label','tweet_id']]
-    elif list_tokens[0] == "trump" and list_tokens[2] == "test":
-        df_test = pd.read_csv(list_files[count_files])
-        df_test['text'] = df_test['text'].apply(lambda x: noise_mitigation(x))
-        df_test.assign(
-            text=lambda df : df["text"].replace('', np.nan)
-        ).dropna().reset_index(drop=True)
-        df_test = df_test.drop_duplicates(subset=['text'],keep='first')
-        df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)   
-        df_test = df_test[['text','label','tweet_id']]
-    else:
-        continue
-    
-# %% saving to csv multiclass dataframe
-
-df_train.to_csv(f'sd_04_multi_train.csv',sep=';',index=False)
-df_test.to_csv(f"sd_04_multi_test.csv",sep=";", index=False)
+df_train.to_csv(f"sd_01_bin_train.csv",sep=";",index=False)
+df_test.to_csv(f"sd_01_bin_test.csv",sep=";",index=False)
 
 unique_classes = sorted(df_train['label'].unique())
-
-for i in tqdm(range(len(unique_classes))):
-    for j in range(i+1,len(unique_classes)):
-        # train
-        df_aux = df_train.loc[(df_train["label"] == unique_classes[i]) | (df_train["label"] == unique_classes[j])]
-        df_aux.to_csv(f"sd_04_bin_train_{i}_{j}.csv",sep=";",index=False)
-
-        # test
-        df_aux = df_test.loc[(df_test["label"] == unique_classes[i]) | (df_test["label"] == unique_classes[j])]
-        df_aux.to_csv(f"sd_04_bin_test_{i}_{j}.csv",sep=";",index=False)
 
 # %% saving explained.csv
 number_classes = len(unique_classes)
@@ -179,4 +151,4 @@ explained_df = pd.DataFrame(
         "label": list(unique_classes)
     }
 )
-explained_df.to_csv('sd_04_explained.csv', sep = ";", index=False)
+explained_df.to_csv('sd_01_explained.csv', sep = ";", index=False)
