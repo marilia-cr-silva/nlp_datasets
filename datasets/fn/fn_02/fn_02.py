@@ -18,6 +18,7 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 from datasets import load_dataset
+from sklearn.model_selection import train_test_split
 import os
 import re
 import html
@@ -25,10 +26,10 @@ from bs4 import BeautifulSoup
 import warnings
 warnings.filterwarnings("ignore")
 
+# %%
+dataset_name = "fn_02"
 
 # %% function to reduce the noise
-
-
 def noise_mitigation(aux):
     
     string = str(aux)
@@ -126,20 +127,19 @@ def noise_mitigation(aux):
     return string
 
 # %%
-
 def goto_root():
-    while os.getcwd().split('\\')[-1] != dataset_name.upper():
+    while os.path.basename(os.getcwd()).upper() != dataset_name.upper():
         os.chdir('../')
 
-# %% processing fake dataset
+# %% reading fake files
 goto_root()
 os.chdir('./fakeNewsDataset')
-
-# %% reading files
 os.chdir('./fake')
 fake_files = os.listdir()
 
 # %% reading legit files
+goto_root()
+os.chdir('./fakeNewsDataset')
 os.chdir('./legit')
 legit_files = os.listdir()
 
@@ -213,4 +213,4 @@ explained_df = pd.DataFrame(
         "label": list(unique_classes)
     }
 )
-explained_df.to_csv('fn_01_explained.csv', sep = ";", index=False)
+explained_df.to_csv('fn_02_explained.csv', sep = ";", index=False)
