@@ -165,5 +165,3 @@ explained_df = pd.DataFrame(
     }
 )
 explained_df.to_csv('hs_01_explained.csv', sep = ";", index=False)
-
-# %%

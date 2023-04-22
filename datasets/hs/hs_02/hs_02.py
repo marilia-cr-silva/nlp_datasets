@@ -129,7 +129,6 @@ dataset = load_dataset('hate_offensive')
 # %% creating dataframe
 df = pd.DataFrame([dataset['train']['tweet'],dataset['train']['label']]).T
 df.columns = ['text','label']
-df['text'] = df['text'].apply(lambda x: noise_mitigation(x))
 df = df.drop_duplicates(subset=['text'],keep='first')
 # %%
 df_train, df_test = train_test_split(
