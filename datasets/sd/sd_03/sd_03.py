@@ -42,7 +42,8 @@ def noise_mitigation(aux):
     string = re.sub('w\/|W\/','with',string)
     string = re.sub('\\&amp;',' and ',string)
     string = re.sub('\sPage\s\d{1,2}\:|©(\s*\S*)*','',string)
-    
+    string = re.sub("\@\w+","@user",string)
+
     string = html.escape(string)
     string = html.unescape(string)
     string = BeautifulSoup(string, "lxml")
@@ -125,14 +126,13 @@ def noise_mitigation(aux):
 
 # %%
 
-file_name = "2020_us_election_tweets.zip"
+file_name = "sd_03.zip"
 with ZipFile(file_name, 'r') as zip:
     zip.extractall()
 list_files = [f for f in os.listdir('.') if os.path.isfile(f)]
 
 for count_files, file_name in enumerate(list_files):
     list_tokens = file_name.split("_")
-    print(list_tokens)
     if list_tokens[0] == "biden" and list_tokens[2] == "train":
         df_train = pd.read_csv(list_files[count_files])
         df_train['text'] = df_train['text'].apply(lambda x: noise_mitigation(x))

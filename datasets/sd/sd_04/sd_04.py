@@ -42,6 +42,7 @@ def noise_mitigation(aux):
     string = re.sub('w\/|W\/','with',string)
     string = re.sub('\\&amp;',' and ',string)
     string = re.sub('\sPage\s\d{1,2}\:|©(\s*\S*)*','',string)
+    string = re.sub("\@\w+","@user",string)
     
     string = html.escape(string)
     string = html.unescape(string)
@@ -125,7 +126,7 @@ def noise_mitigation(aux):
 
 # %%
 
-file_name = "2020_us_election_tweets.zip"
+file_name = "sd_04.zip"
 with ZipFile(file_name, 'r') as zip:
     zip.extractall()
 list_files = [f for f in os.listdir('.') if os.path.isfile(f)]
