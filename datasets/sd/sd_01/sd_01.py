@@ -14,6 +14,7 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 from datasets import load_dataset
+from sklearn.model_selection import train_test_split
 import os
 import re
 import html
@@ -36,6 +37,7 @@ def noise_mitigation(aux):
     string = re.sub('w\/|W\/','with',string)
     string = re.sub('\\&amp;',' and ',string)
     string = re.sub('\sPage\s\d{1,2}\:|©(\s*\S*)*','',string)
+    string = re.sub("\@\w+","@user",string)
     
     string = html.escape(string)
     string = html.unescape(string)
