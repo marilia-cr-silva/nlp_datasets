@@ -26,7 +26,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # %% loading language detection model
-language_identification_model = fasttext.load_model('/mnt/c/Users/Acer/Documents/Corpora/fasttext/lid.176.bin') # or lid.176.ftz lid.176.bin
+language_identification_model = fasttext.load_model('lid.176.bin') # or lid.176.ftz lid.176.bin
 
 # %% function to reduce the noise before language identification
 def noise_mitigation(aux):
@@ -36,6 +36,7 @@ def noise_mitigation(aux):
     string = str(aux)
     new_string = string.split('\n')
     string = ' '.join(new_string)
+string = re.sub('\n|\t','',string)
     string = re.sub('\s\#\s|\@user\s?','',string)
     string = re.sub('\-\-+|\s\-\s',' ',string)
     string = re.sub('\s?\@\s',' at ',string)
@@ -121,6 +122,7 @@ def noise_mitigation(aux):
 
     new_string = string.split()
     string = ' '.join(new_string)
+string = re.sub('\n|\t','',string)
     
     return string
 
@@ -136,6 +138,7 @@ def noise_mitigation_lang_id(aux):
     string = re.sub('\[|\]|\{|\}|\(|\)|\>|\<|\*|\=','',string) # e.g., [](){}
     new_string = string.split()
     string = ' '.join(new_string)
+string = re.sub('\n|\t','',string)
     
     return string
 

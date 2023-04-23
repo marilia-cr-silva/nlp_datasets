@@ -34,6 +34,7 @@ def noise_mitigation(aux):
     string = str(aux)
     new_string = string.split('\n')
     string = ' '.join(new_string)
+string = re.sub('\n|\t','',string)
     string = re.sub('\s\#\s|\@user\s?|Says\s|\!+\sRT\s|\s?RT\s|\s?URL|\[NAME\]','',string)
     string = re.sub('\-\-+|\s\-\s',' ',string)
     string = re.sub('\s?\@\s',' at ',string)
@@ -150,9 +151,11 @@ def noise_mitigation(aux):
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"','',string)
     new_string = string.split()
     string = ' '.join(new_string)
+string = re.sub('\n|\t','',string)
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"','',string)
     new_string = string.split()
     string = ' '.join(new_string)
+string = re.sub('\n|\t','',string)
     
     if len(string) > 5:
         return string
