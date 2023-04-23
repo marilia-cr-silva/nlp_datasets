@@ -119,7 +119,7 @@ def noise_mitigation(aux):
 
     new_string = string.split()
     string = ' '.join(new_string)
-string = re.sub('\n|\t','',string)
+    string = re.sub('\n|\t','',string)
     
     return string
 
@@ -135,7 +135,6 @@ def noise_mitigation_lang_id(aux):
     string = re.sub('\[|\]|\{|\}|\(|\)|\>|\<|\*|\=','',string) # e.g., [](){}
     new_string = string.split()
     string = ' '.join(new_string)
-string = re.sub('\n|\t','',string)
     
     return string
 
