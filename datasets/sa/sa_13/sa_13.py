@@ -119,7 +119,7 @@ def noise_mitigation(aux):
 
     new_string = string.split()
     string = ' '.join(new_string)
-    string = re.sub('\n|\t','',string)
+    string = re.sub(r'\n|\t|\\n|\\t','',string)
     
     return string
 

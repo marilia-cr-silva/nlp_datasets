@@ -40,7 +40,7 @@ def noise_mitigation(aux):
     string = str(aux)
     new_string = string.split('\n')
     string = ' '.join(new_string)
-    string = re.sub('\n|\t','',string)
+    string = re.sub(r'\n|\t|\\n|\\t','',string)
     string = re.sub('\s\#\s|\@user\s?|\s\#\s|\@USER\s?|Says\s|\!+\sRT\s|\s?RT\s','',string)
     string = re.sub('\-\-+|\s\-\s',' ',string)
     string = re.sub('\s?\@\s',' at ',string)
@@ -162,7 +162,7 @@ df_test = pd.read_csv("sa_07_test.csv", sep=',', header=None, names=['label', 't
 
 # %% train set
 tqdm.pandas(desc="my bar!")
-df_train['text'] = df_train['text'].progress_apply(lambda x: noise_mitigation(x))
+df_train['text'] = df_train['text'].apply(lambda x: noise_mitigation(x))
 df_train['language'] = df_train['text'].apply(lambda x: detect_language(x))
 df_train = df_train[df_train['language'] == 'en']
 df_train = df_train[['text','label']]
