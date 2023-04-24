@@ -29,7 +29,7 @@ import fasttext
 from bs4 import BeautifulSoup
 import csv
 import io
-import warning
+import warnings
 warnings.filterwarnings("ignore")
 
 # %% loading language detection model
@@ -160,6 +160,7 @@ def detect_language(instance):
 
 # %% loading dataset
 dataset = load_dataset("emotion")
+# TODO: test later pd.read_pickle('sa_10.pkl')
 
 # %% creating dataframes
 df_test_aux = pd.DataFrame([dataset['test']['text'],dataset['test']['label']]).T
