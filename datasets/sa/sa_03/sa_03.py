@@ -174,6 +174,7 @@ df_test['text'] = df_test['text'].apply(lambda x: noise_mitigation(x))
 df_test['language'] = df_test['text'].apply(lambda x: detect_language(x))
 df_test = df_test[df_test['language'] == 'en']
 df_test = df_test[['text','label']]
+df_test = df_test[(df_test['label'] == 0) | (df_test['label'] == 4)]
 df_test.assign(
         text=lambda df : df["text"].replace('', np.nan)
     ).dropna().reset_index(drop=True)
@@ -181,23 +182,12 @@ df_test = df_test.drop_duplicates(subset=['text'],keep='first')
 df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)
 
 # %%
-df_train.to_csv(f"sa_03_multi_train.csv",sep=";",index=False)
-df_test.to_csv(f"sa_03_multi_test.csv",sep=";",index=False)
-
-# %%
-unique_classes = sorted(df_train['label'].unique())
-
-for i in tqdm(range(len(unique_classes))):
-    for j in range(i+1,len(unique_classes)):
-        # train
-        df_aux = df_train.loc[(df_train["label"] == unique_classes[i]) | (df_train["label"] == unique_classes[j])]
-        df_aux.to_csv(f"sa_03_bin_train_{i}_{j}.csv",sep=";",index=False)
-
-        # test
-        df_aux = df_test.loc[(df_test["label"] == unique_classes[i]) | (df_test["label"] == unique_classes[j])]
-        df_aux.to_csv(f"sa_03_bin_test_{i}_{j}.csv",sep=";",index=False)
+df_train.to_csv("sa_03_bin_train_0_1.csv",sep=";",index=False)
+df_test.to_csv("sa_03_bin_test_0_1.csv",sep=";",index=False)
 
 # %% saving explained.csv
+unique_classes = sorted(df_train['label'].unique())
+
 number_classes = len(unique_classes)
 explained_df = pd.DataFrame(
     {
