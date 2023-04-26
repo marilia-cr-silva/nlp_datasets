@@ -26,6 +26,7 @@ def noise_mitigation(aux):
     string = str(aux)
     new_string = string.split('\n')
     string = ' '.join(new_string)
+    string = re.sub(r'\n|\t|\\n|\\t','',string)
     string = re.sub('\s\#\s|\@user\s?|Says\s|\!+\sRT\s|\s?RT\s|\s?URL','',string)
     string = re.sub('\-\-+|\s\-\s',' ',string)
     string = re.sub('\s?\@\s',' at ',string)
