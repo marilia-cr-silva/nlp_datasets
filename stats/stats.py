@@ -1,4 +1,5 @@
 # %%
+import shutil
 import traceback
 import os
 import re
@@ -27,6 +28,8 @@ class StatsRunner:
 
         self.output_tasks = self.get_output_tasks_dir_config()
         self.output_dataset_map = self.get_output_dataset_map()
+
+        self.processed_datasets = self.get_processed_datasets()
 
     def get_tasks_absolute_path(self):
         if os.getcwd() != self.TASKS_RELATIVE_PATH:
@@ -108,6 +111,13 @@ class StatsRunner:
                 return dataset
         raise ValueError(f"Could not find corresponding dataset for {dataset.name}")
 
+    def get_processed_datasets(self):
+        with open("processed_files.txt", "r") as f:
+            processed_datasets = f.readlines()
+        processed_datasets = set([ds[:5] for ds in processed_datasets])
+        print(f"Found {len(processed_datasets)} already processed datasets.")
+        return processed_datasets
+
     def run_tasks(self):
         os.chdir(self.WORKING_DIR)
         self.build_output_dir_structure()
@@ -121,10 +131,13 @@ class StatsRunner:
             failed = {}
 
             for output_dataset in output_datasets:
+                if output_dataset.name in self.processed_datasets:
+                    print(f"{output_dataset.name} is already processed. Skipping...")
+                    continue
+
                 dataset = self.find_corresponding_dataset(output_dataset.name, datasets)
 
-                os.chdir(output_dataset.absolute_path)
-
+                os.chdir(dataset.absolute_path)
                 python_script_path = os.path.join(dataset.absolute_path, f"{dataset.name}.py")
 
                 try:
@@ -137,6 +150,13 @@ class StatsRunner:
                     print(f"{python_script_path} failed:\n{format_exc}")
 
                     failed[task.name] = format_exc
+
+                # Get all output files generated in current dir, ignoring current script
+                output_files = [f for f in os.listdir() if re.search("\.csv$", f) != None]
+
+                for output_file in output_files:
+                    print(f"moving {output_file} to {output_dataset.absolute_path}")
+                    shutil.move(output_file, output_dataset.absolute_path)
 
 
 if __name__ == "__main__":
