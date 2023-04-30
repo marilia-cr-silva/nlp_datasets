@@ -1,4 +1,5 @@
 # %%
+import traceback
 import os
 import re
 from dataclasses import dataclass
@@ -117,12 +118,26 @@ class StatsRunner:
             datasets = self.dataset_map[task.name]
             output_datasets = self.output_dataset_map[task.name]
 
+            failed = {}
+
             for output_dataset in output_datasets:
                 dataset = self.find_corresponding_dataset(output_dataset.name, datasets)
 
                 os.chdir(output_dataset.absolute_path)
 
                 python_script_path = os.path.join(dataset.absolute_path, f"{dataset.name}.py")
-                with open(python_script_path, 'r') as f:
-                    print(f"executing {python_script_path}")
-                    exec(f.read())
+
+                try:
+                    with open(python_script_path, 'r') as f:
+                        print(f"executing {python_script_path}")
+                        exec(f.read(), locals(), locals())
+                except:
+                    format_exc = traceback.format_exc()
+
+                    print(f"{python_script_path} failed:\n{format_exc}")
+
+                    failed[task.name] = format_exc
+
+
+if __name__ == "__main__":
+    StatsRunner().run_tasks()
