@@ -1,29 +1,39 @@
-# -*- coding: utf-8 -*-
-# %% bibtex
-
-'''
-@inproceedings{founta2018large_twitter_abusive,
-    title={Large Scale Crowdsourcing and Characterization of Twitter Abusive Behavior},
-    author={Founta, Antigoni-Maria and Djouvas, Constantinos and Chatzakou, Despoina and Leontiadis, Ilias and Blackburn, Jeremy and Stringhini, Gianluca and Vakali, Athena and Sirivianos, Michael and Kourtellis, Nicolas},
-    booktitle={11th International Conference on Web and Social Media, ICWSM 2018},
-    year={2018},
-    organization={AAAI Press}
+"""
+@inproceedings{rosenthal-etal-2017-semeval,
+    title = "{S}em{E}val-2017 Task 4: Sentiment Analysis in {T}witter",
+    author = "Rosenthal, Sara  and
+      Farra, Noura  and
+      Nakov, Preslav",
+    booktitle = "Proceedings of the 11th International Workshop on Semantic Evaluation ({S}em{E}val-2017)",
+    month = aug,
+    year = "2017",
+    address = "Vancouver, Canada",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/S17-2088",
+    doi = "10.18653/v1/S17-2088",
+    pages = "502--518",
+    abstract = "This paper describes the fifth year of the Sentiment Analysis in Twitter task. SemEval-2017 Task 4 continues with a rerun of the subtasks of SemEval-2016 Task 4, which include identifying the overall sentiment of the tweet, sentiment towards a topic with classification on a two-point and on a five-point ordinal scale, and quantification of the distribution of sentiment towards a topic across a number of tweets: again on a two-point and on a five-point ordinal scale. Compared to 2016, we made two changes: (i) we introduced a new language, Arabic, for all subtasks, and (ii) we made available information from the profiles of the Twitter users who posted the target tweets. The task continues to be very popular, with a total of 48 teams participating this year.",
 }
-'''
+
+This file uses only the subtask A. In addition,
+the tweets were retrieved before being preprocessed.
+"""
 
 # %% loading libraries
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from sklearn.model_selection import train_test_split
 import os
 import re
 import html
+import gc
+from io import StringIO
 from bs4 import BeautifulSoup
 import warnings
 warnings.filterwarnings("ignore")
 
 # %% function to reduce the noise
+
 def noise_mitigation(aux):
     
     string = str(aux)
@@ -40,7 +50,7 @@ def noise_mitigation(aux):
     string = re.sub('&',' and ',string)
     string = re.sub('\sPage\s\d{1,2}\:|©(\s*\S*)*','',string)
     string = re.sub("\@\w+","@user",string)
-    string = re.sub('^,\s?|^\.\s?|^:|\||《|》|•','',string)
+    string = re.sub('^,\s?|^\.\s?|^:|\||《|》|•|↝||¤|ï|ð|«|☀|“','',string)
     string = re.sub("\d{2}\:\d{2}"
                     "|\,?\s?(\d{1,2})?\s?\S{3,10}\s\d{4}\s?(UTC)?"
                     "|\S{3,10}\s\d{1,2}\,\s\d{4}\s?(UTC)?"
@@ -67,7 +77,7 @@ def noise_mitigation(aux):
     string = re.sub('mm+','mm',string)
     string = re.sub('nn+','nn',string)
     string = re.sub('pp+','pp',string)
-    string = re.sub('qq+','qq',string)
+    string = re.sub('qq+','q',string)
     string = re.sub('rr+','rr',string)
     string = re.sub('ss+','ss',string)
     string = re.sub('tt+','tt',string)
@@ -123,7 +133,18 @@ def noise_mitigation(aux):
     string = re.sub('\[|\]|\{|\}|\(|\)|\>|\<|\*|\=|\_','',string) # e.g., [](){}
     string = re.sub('^\"+|^\'+|\"+$|\'+$','',string) # if it has several types of quotations in the beginning
     string = re.sub('â€™','\'',string)
+
+    try:
+        string = string.encode('latin-1').decode('utf-8')
+    except:
+        pass
+
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"','',string)
+    new_string = string.split()
+    string = ' '.join(new_string)
+    string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"','',string)
+    new_string = string.split()
+    string = ' '.join(new_string)
     new_string = string.split()
     string = ' '.join(new_string)
 
@@ -132,42 +153,71 @@ def noise_mitigation(aux):
     
     return string
 
-# %% loading dataset
-df = pd.read_csv('hs_05_text.csv',sep=';')
+# %% loading file
+df = pd.read_csv('sa_06_train_2013.csv',sep=';')
+df_aux_00 = pd.read_csv('sa_06_train_2014.csv',sep=';')
+df = pd.concat([df,df_aux_00],axis=0)
+del df_aux_00
+gc.collect()
 
-# %% excluding instances the ones without text data ('banned_user')
-df = df[df['text'] != 'banned_user']
+df_aux_01 = pd.read_csv('sa_06_train_2015.csv',sep=';')
+df = pd.concat([df,df_aux_01],axis=0)
+del df_aux_01
+gc.collect()
 
-# %% preprocessing
-# train set
-df = df[['text','label','id']]
-df = df.drop_duplicates(subset=['text'],keep='first')
+with open('sa_06_train_2016.csv', 'r') as f:
+    content = html.unescape(f.read())
+df_aux_02 = pd.read_csv(StringIO(content), sep=';')
+df = pd.concat([df,df_aux_02],axis=0)
+del df_aux_02
+gc.collect()
+
+df = df[df["text"] != "unavailable"]
+df['text'] = df['text'].apply(lambda x: noise_mitigation(x))
+df.assign(
+    text=lambda df : df["text"].replace('', np.nan)
+    ).dropna()
 df = df[~df["label"].isnull()]
+df = df.drop_duplicates(subset=['text'],keep='first')
+df = df.sample(frac=1,random_state=42).reset_index(drop=True)
+df = df[["text","label"]]
 
-df_train, df_test = train_test_split(
-    df, test_size=0.3, random_state=42,shuffle = True)
+df_train = df.copy(deep=True)
+del df
+gc.collect()
+# %%
 
-df_train["new_text"] = df_train["text"].apply(lambda x: noise_mitigation(x))
-df_train.assign(
+df = pd.read_csv('sa_06_test_2013.csv',sep=';')
+df_aux_00 = pd.read_csv('sa_06_test_2014.csv',sep=';')
+df = pd.concat([df,df_aux_00],axis=0)
+del df_aux_00
+gc.collect()
+
+df_aux_01 = pd.read_csv('sa_06_test_2015.csv',sep=';')
+df = pd.concat([df,df_aux_01],axis=0)
+del df_aux_01
+gc.collect()
+
+df_aux_02 = pd.read_csv('sa_06_test_2016.csv',sep=';')
+df = pd.concat([df,df_aux_02],axis=0)
+del df_aux_02
+gc.collect()
+
+df = df[df["text"] != "unavailable"]
+df['text'] = df['text'].apply(lambda x: noise_mitigation(x))
+df.assign(
         text=lambda df : df["text"].replace('', np.nan)
-    ).dropna().reset_index(drop=True)
-df_train = df_train.drop_duplicates(subset=["new_text"],keep="first")
-df_train = df_train[["new_text","label"]]
-df_train.rename(columns={"new_text": "text"}, inplace=True)
-df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)
+    ).dropna()
+df = df[~df["label"].isnull()]
+df = df.drop_duplicates(subset=['text'],keep='first')
+df = df.sample(frac=1,random_state=42).reset_index(drop=True)
+df = df[["text","label"]]
 
-df_test["new_text"] = df_test["text"].apply(lambda x: noise_mitigation(x))
-df_test.assign(
-        text=lambda df : df["text"].replace('', np.nan)
-    ).dropna().reset_index(drop=True)
-df_test = df_test.drop_duplicates(subset=["new_text"],keep="first")
-df_test = df_test[["new_text","label"]]
-df_test.rename(columns={"new_text": "text"}, inplace=True)
-df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)
+df_test = df.copy(deep=True)
 
 # %%
-df_train.to_csv(f"hs_05_multi_train.csv",sep=";",index=False)
-df_test.to_csv(f"hs_05_multi_test.csv",sep=";",index=False)
+df_train.to_csv("sa_06_multi_train.csv",sep=";",index=False)
+df_test.to_csv("sa_06_multi_test.csv",sep=";",index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())
@@ -176,11 +226,11 @@ for i in tqdm(range(len(unique_classes))):
     for j in range(i+1,len(unique_classes)):
         # train
         df_aux = df_train.loc[(df_train["label"] == unique_classes[i]) | (df_train["label"] == unique_classes[j])]
-        df_aux.to_csv(f"hs_05_bin_train_{i}_{j}.csv",sep=";",index=False)
+        df_aux.to_csv(f"sa_06_bin_train_{i}_{j}.csv",sep=";",index=False)
 
         # test
         df_aux = df_test.loc[(df_test["label"] == unique_classes[i]) | (df_test["label"] == unique_classes[j])]
-        df_aux.to_csv(f"hs_05_bin_test_{i}_{j}.csv",sep=";",index=False)
+        df_aux.to_csv(f"sa_06_bin_test_{i}_{j}.csv",sep=";",index=False)
 
 # %% saving explained.csv
 number_classes = len(unique_classes)
@@ -190,4 +240,4 @@ explained_df = pd.DataFrame(
         "label": list(unique_classes)
     }
 )
-explained_df.to_csv('hs_05_explained.csv', sep = ";", index=False)
+explained_df.to_csv('sa_06_explained.csv', sep = ";", index=False)

@@ -102,7 +102,7 @@ def noise_mitigation(aux):
 
     string = re.sub('\.\.+','...',string)
     string = re.sub('\s\.','.',string)
-    string = re.sub('\"{2,}','"',string)
+    string = re.sub('"{2,}','"',string)
     string = re.sub('\s\!','!',string)
     string = re.sub('\s\?','?',string)
     string = re.sub('\s\,',',',string)
@@ -135,21 +135,18 @@ df = df.drop_duplicates(subset=['text'],keep='first')
 df_train, df_test = train_test_split(
     df, test_size=0.3, random_state=42,shuffle = True)
 
-df_train["new_text"] = df_train["text"].apply(lambda x: noise_mitigation(x))
+df_train["text"] = df_train["text"].apply(lambda x: noise_mitigation(x))
 df_train.assign(
         text=lambda df : df["text"].replace('', np.nan)
     ).dropna().reset_index(drop=True)
-df_train = df_train.drop_duplicates(subset=["new_text"],keep="first")
-df_train.rename(columns={"new_text": "text"}, inplace=True)
+df_train = df_train.drop_duplicates(subset=["text"],keep="first")
 df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)
 
-df_test["new_text"] = df_test["text"].apply(lambda x: noise_mitigation(x))
+df_test["text"] = df_test["text"].apply(lambda x: noise_mitigation(x))
 df_test.assign(
         text=lambda df : df["text"].replace('', np.nan)
     ).dropna().reset_index(drop=True)
-df_test = df_test.drop_duplicates(subset=["new_text"],keep="first")
-df_test = df_test[["new_text","label"]]
-df_test.rename(columns={"new_text": "text"}, inplace=True)
+df_test = df_test.drop_duplicates(subset=["text"],keep="first")
 df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)
 
 df_train.to_csv(f"hs_02_multi_train.csv",sep=";",index=False)
