@@ -152,6 +152,7 @@ df_train.assign(
         text=lambda df : df["text"].replace('', np.nan)
     ).dropna().reset_index(drop=True)
 df_train = df_train.drop_duplicates(subset=["new_text"],keep="first")
+df_train = df_train[["new_text","label"]]
 df_train.rename(columns={"new_text": "text"}, inplace=True)
 df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)
 
