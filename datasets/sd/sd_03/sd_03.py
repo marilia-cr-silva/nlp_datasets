@@ -142,7 +142,7 @@ for count_files, file_name in enumerate(list_files):
             ).dropna().reset_index(drop=True)
         df_train = df_train.drop_duplicates(subset=['text'],keep='first')
         df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)   
-        df_train = df_train[['text','label','tweet_id']]
+        df_train = df_train[['text','label']]
     elif list_tokens[0] == "biden" and list_tokens[2] == "test":
         df_test = pd.read_csv(list_files[count_files])
         df_test['text'] = df_test['text'].apply(lambda x: noise_mitigation(x))
@@ -151,7 +151,7 @@ for count_files, file_name in enumerate(list_files):
         ).dropna().reset_index(drop=True)
         df_test = df_test.drop_duplicates(subset=['text'],keep='first')
         df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)   
-        df_test = df_test[['text','label','tweet_id']]
+        df_test = df_test[['text','label']]
     else:
         continue
     
