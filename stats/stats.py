@@ -16,7 +16,7 @@ class DirConfig:
 
 
 # %%
-class StatsRunner:
+class TasksRunner:
     def __init__(self):
         self.VALID_TASKS = ["fn", "hs", "sa", "sd", "tc"]
         self.WORKING_DIR = os.getcwd()
@@ -157,7 +157,3 @@ class StatsRunner:
                 for output_file in output_files:
                     print(f"moving {output_file} to {output_dataset.absolute_path}")
                     shutil.move(output_file, output_dataset.absolute_path)
-
-
-if __name__ == "__main__":
-    StatsRunner().run_tasks()
