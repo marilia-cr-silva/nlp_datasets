@@ -135,8 +135,7 @@ df_content = pd.read_csv(
     usecols=['fact_rating_phase1', 'snopes_url_phase1', 'article_title_phase1',
             'article_category_phase1', 'article_date_phase1', 'article_claim_phase1',
             'article_origin_url_phase1', 'index_paragraph_phase1', 'page_is_first_citation_phase1',
-            'error_phase2', 'original_article_text_phase2', 'article_title_phase2', 'publish_date_phase2',
-            'author_phase2'])
+            'error_phase2', 'original_article_text_phase2', 'article_title_phase2', 'publish_date_phase2','author_phase2'])
 
 df_content = df_content[['article_claim_phase1', 'fact_rating_phase1']]
 df_content.rename(
