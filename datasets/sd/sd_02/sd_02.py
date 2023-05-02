@@ -96,9 +96,12 @@ def noise_mitigation(aux):
     string = re.sub('HE(HE)+','HEHE',string)
     string = re.sub('HI(HI)+','HIHI',string)
 
-    string = re.sub('\.\.+','...',string)
+    try:
+        string = re.sub("\.{10,}","",string)
+    except:
+        pass
     string = re.sub('\s\.','.',string)
-    string = re.sub('\"{2,}','"',string)
+    string = re.sub('"{2,}','"',string)
     string = re.sub('\s\!','!',string)
     string = re.sub('\s\?','?',string)
     string = re.sub('\s\,',',',string)
@@ -120,16 +123,14 @@ def noise_mitigation(aux):
     
     return string
 
-
-# loading datasets
+# %% this cell got an unexpected result. After loading the dataset, df_test and df_train had identical instances.
+# thus, this work retrieves the dataframe concerning the training set and splits between training and test sets.
+# The cell would work if the retrieved dataframes were different
+"""
 
 dataset = load_dataset("hyperpartisan_news_detection",'bypublisher') # bypublisher
 
-# %% creating dataframes
-
-# train set
-
-df_train = pd.DataFrame([dataset['train']['text'],dataset['train']['hyperpartisan']]).T
+df_train = pd.DataFrame([dataset['train']['text'],dataset['train']['bias']]).T
 df_train.columns = ['text','label']
 df_train['text'] = df_train['text'].apply(lambda x: noise_mitigation(x))
 df_train.assign(
@@ -150,10 +151,32 @@ df_test.assign(
 df_test = df_test.drop_duplicates(subset=['text'],keep='first')
 df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)
 
-# %% saving to csv multiclass dataframe
+df_train.to_csv('sd_02_multi_train_before_split.csv',sep=';',index=False)
+df_test.to_csv("sd_02_multi_test.csv",sep=";", index=False)
+"""
 
-df_train.to_csv(f'sd_02_multi_train.csv',sep=';',index=False)
-df_test.to_csv(f"sd_02_multi_test.csv",sep=";", index=False)
+# %% creating dataframes
+
+df_content = pd.read_csv("sd_02_multi_train_before_split.csv",sep=";") # generated based on the previous cell
+
+# %%
+def remove_extra_dots(string: str) -> str:
+    try:
+        new_string = re.sub(r"\.{10,}","",string)
+    except:
+        new_string = string
+    return new_string
+
+df_content["text"] = df_content["text"].apply(lambda x: remove_extra_dots(x))
+df_train, df_test = train_test_split(df_content, test_size=0.3,
+            random_state=42,shuffle = True)
+
+df_train.reset_index(drop=True, inplace=True)
+df_test.reset_index(drop=True, inplace=True)
+
+#%% saving to csv multiclass dataframe
+df_train.to_csv('sd_02_multi_train.csv',sep=';',index=False)
+df_test.to_csv("sd_02_multi_test.csv",sep=";", index=False)
 
 unique_classes = sorted(df_train['label'].unique())
 
