@@ -22,6 +22,7 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 from datasets import load_dataset
+from sklearn.model_selection import train_test_split
 import os
 import re
 import html
@@ -158,11 +159,11 @@ def detect_language(instance):
     
     return aux
 
-# %% loading dataset
-dataset = load_dataset("emotion")
-# TODO: test later pd.read_pickle('sa_10.pkl')
 
-# %% creating dataframes
+
+# %% retrieving with Hugging Face API
+dataset = load_dataset("emotion")
+
 df_test_aux = pd.DataFrame([dataset['test']['text'],dataset['test']['label']]).T
 df_validation_aux = pd.DataFrame([dataset['validation']['text'],dataset['validation']['label']]).T
 df_test = pd.concat([df_validation_aux,df_test_aux])
@@ -170,7 +171,6 @@ df_train = pd.DataFrame([dataset['train']['text'],dataset['train']['label']]).T
 df_test.columns = ['text','label']
 df_train.columns = ['text','label']
 
-# %% train set
 df_train["text"] = df_train["text"].apply(lambda x: noise_mitigation(x))
 df_train['language'] = df_train['text'].apply(lambda x: detect_language(x))
 df_train = df_train[df_train['language'] == 'en']
@@ -181,7 +181,6 @@ df_train = df_train.drop_duplicates(subset=["text"],keep="first")
 df_train = df_train[["text","label"]]
 df_train = df_train.sample(frac=1,random_state=42).reset_index(drop=True)
 
-# %% test set
 df_test["text"] = df_test["text"].apply(lambda x: noise_mitigation(x))
 df_test['language'] = df_test['text'].apply(lambda x: detect_language(x))
 df_test = df_test[df_test['language'] == 'en']
@@ -192,8 +191,26 @@ df_test = df_test.drop_duplicates(subset=["text"],keep="first")
 df_test = df_test[["text","label"]]
 df_test = df_test.sample(frac=1,random_state=42).reset_index(drop=True)
 
-df_train.to_csv(f"sa_10_multi_train.csv",sep=";",index=False)
-df_test.to_csv(f"sa_10_multi_test.csv",sep=";",index=False)
+
+# %%
+df_content = pd.read_pickle('sa_10.pkl')
+df_content.columns = ["text","label"]
+df_content["text"] = df_content["text"].apply(lambda x: noise_mitigation(x))
+df_content['language'] = df_content['text'].apply(lambda x: detect_language(x))
+df_content = df_content[df_content['language'] == 'en']
+df_content.assign(
+        text=lambda df : df["text"].replace('', np.nan)
+    ).dropna().reset_index(drop=True)
+df_content = df_content.drop_duplicates(subset=["text"],keep="first")
+df_content = df_content[["text","label"]]
+df_content = df_content.sample(frac=1,random_state=42).reset_index(drop=True)
+
+df_train, df_test = train_test_split(
+    df_content, test_size=0.3, random_state=42,shuffle = True)
+# %%
+
+df_train.to_csv("sa_10_multi_train.csv",sep=";",index=False)
+df_test.to_csv("sa_10_multi_test.csv",sep=";",index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())
