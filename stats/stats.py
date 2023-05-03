@@ -1,159 +1,233 @@
 # %%
-import shutil
-import traceback
+import pandas as pd
 import os
-import re
-from dataclasses import dataclass
-from typing import Dict, List
+from typing import Any, Dict, List, Set
 
-@dataclass
-class DirConfig:
-    name: str
-    absolute_path: str
-
-    def __str__(self):
-        return f"name: `{self.name}` | absolute_path: `{self.absolute_path}`"
-
+DATASET_STATS_COLUMNS = [
+    "train_length",
+    "test_length",
+    "num_classes",
+    "num_class_permutations",
+    "label_imbalance_ratio",
+    "dataset_name",
+]
+TASK_STATS_COLUMNS = [
+    "num_datasets",
+    "total_class_permutations",
+    "max_num_classes",
+    "min_num_classes",
+    "num_multiclass_datasets",
+    "num_binary_datasets",
+    "max_label_imbalance_ratio",
+    "min_label_imbalance_ratio",
+    "largest_train_set",
+    "smallest_train_set",
+    "largest_test_set",
+    "smallest_test_set",
+]
 
 # %%
-class TasksRunner:
-    def __init__(self):
-        self.VALID_TASKS = ["fn", "hs", "sa", "sd", "tc"]
-        self.WORKING_DIR = os.getcwd()
-        self.TASKS_RELATIVE_PATH = "../datasets/"
-        self.TASKS_ABSOLUTE_PATH = self.get_tasks_absolute_path()
+def get_processed_files() -> List[str]:
+    with open("proc_datasets.txt", "r") as f:
+        all_files = [file.strip() for file in f.readlines()]
+    return all_files
 
-        self.tasks = self.get_tasks_dir_config()
-        self.dataset_map = self.get_dataset_map()
-
-        self.output_tasks = self.get_output_tasks_dir_config()
-        self.output_dataset_map = self.get_output_dataset_map()
-
-        self.processed_datasets = self.get_processed_datasets()
-
-    def get_tasks_absolute_path(self):
-        if os.getcwd() != self.TASKS_RELATIVE_PATH:
-            os.chdir(self.TASKS_RELATIVE_PATH)
-        return os.path.abspath(os.getcwd())
-
-    def get_tasks_dir_config(self) -> List[DirConfig]:
-        current_dir = os.getcwd()
-
-        if current_dir != self.WORKING_DIR: 
-            os.chdir(self.WORKING_DIR)
-
-        tasks = [
-            DirConfig(
-                name=folder,
-                absolute_path=os.path.join(self.TASKS_ABSOLUTE_PATH, folder)
-            )
-            for folder in os.listdir(self.TASKS_ABSOLUTE_PATH)
-            if folder in self.VALID_TASKS
-        ]
-
-        print(f"Found the following tasks: {tasks}")
-
-        return tasks
-
-    def get_dataset_map(self) -> Dict[str, List[DirConfig]]:
-        dataset_map = {}
-
-        for task in self.tasks:
-            datasets = [
-                DirConfig(
-                    name=ds,
-                    absolute_path=os.path.join(task.absolute_path, ds)
-                )
-                for ds in os.listdir(task.absolute_path) 
-                if re.search("[a-z]{2}_[0-9]{2}", ds) != None
-            ]
-            dataset_map[task.name] = datasets
-
-        return dataset_map
+def build_dataset_file_map(files: List[str]) -> Dict[str, List[str]]:
+    datasets = set([f[:5] for f in files])
+    dataset_file_map = {}
     
-    def get_output_tasks_dir_config(self) -> List[DirConfig]:
-        return [
-            DirConfig(
-                name=task.name,
-                absolute_path=os.path.join(self.WORKING_DIR, task.name)
-            )
-            for task in self.tasks
-        ]
+    for dataset in datasets:
+        current_files = [f for f in files if f.startswith(dataset)]
+        dataset_file_map[dataset] = current_files
+
+    return dataset_file_map
+
+def build_task_dataset_map(file_dataset_map: Dict[str, List[str]]):
+    tasks = ["fn", "hs", "sa", "sd", "tc"]
+
+    task_dataset_map = {}
+
+    for task in tasks:
+        task_dataset_map[task] = {}
+
+        current_datasets = [d for d in file_dataset_map.keys() if d.startswith(task)]
+
+        for dataset in current_datasets:
+            task_dataset_map[task][dataset] = file_dataset_map[dataset]
+
+    return task_dataset_map
+
+def run_stats(task_dataset_map: Dict[str, Any]):
+    files_set = set(os.listdir())
+    for task in task_dataset_map.keys():
+        dataset_stats_df = get_all_dataset_stats(task, task_dataset_map, files_set)
+
+        if dataset_stats_df.empty:
+            print(f"{task} yielded no dataset stat results. Skipping...")
+            continue
+
+        run_tasks_stats(task, dataset_stats_df)
+
+def get_all_dataset_stats(
+    task_name: str,
+    task_dataset_map: Dict[str, Any],
+    files_set: Set[str]
+):
+    print(f"Running {task_name}...")
     
-    def get_output_dataset_map(self) -> Dict[str, List[DirConfig]]:
-        output_dataset_map = {}
-        for task_name, datasets in self.dataset_map.items():
-            output_dataset_map[task_name] = [
-                DirConfig(
-                    name=ds.name,
-                    absolute_path=os.path.join(self.WORKING_DIR, task_name, ds.name)
-                )
-                for ds in datasets
-            ]
-        return output_dataset_map
+    dataset_results = (
+        pd.DataFrame(columns=DATASET_STATS_COLUMNS)
+        .astype(
+            {
+                "train_length": "int16",
+                "test_length": "int16",
+                "num_classes": "int16",
+                "num_class_permutations": "int16",
+                "label_imbalance_ratio": "float64",
+                "dataset_name": "string",
+            }
+        )
+    )
 
-    def build_output_dir_structure(self) -> None:
-        if os.getcwd() != self.WORKING_DIR: 
-            os.chdir(self.WORKING_DIR)
+    for dataset in task_dataset_map[task_name].keys():
+        dataset_files = task_dataset_map[task_name][dataset]
 
-        for task in self.output_tasks:
-            if not os.path.isdir(task.absolute_path):
-                os.mkdir(task.absolute_path)
+        dataset_files_set = set(dataset_files)
+        if len(dataset_files_set.intersection(files_set)) != len(dataset_files_set):
+            print(f"{dataset} has missing files")
+            continue
 
-        for task_name, datasets in self.output_dataset_map.items():
-            for dataset in datasets:
-                if not os.path.isdir(dataset.absolute_path):
-                    os.mkdir(dataset.absolute_path)
+        result = run_dataset_stats(dataset, dataset_files)
+        dataset_results = pd.concat([dataset_results, result], axis=0, ignore_index=True)
+    
+    return dataset_results
 
-    def find_corresponding_dataset(self, output_dataset_name: str, datasets: List[DirConfig]) -> DirConfig:
-        for dataset in datasets:
-            if dataset.name == output_dataset_name:
-                return dataset
-        raise ValueError(f"Could not find corresponding dataset for {dataset.name}")
+def run_dataset_stats(dataset_name: str, dataset_files: List[str]):
+    """
+    All the datasets per task
+    Every dataset:
+    training set length and test set length
+    Number of Classes
+    Number of class permutations (n*(n-1)/2) -> n number of labels
+    Imbalance ratio (number of the most represented label/number of the most underrepresented label): (max(value_counts) / min(value_counts())
+    """
+    print(f"Processing stats for {dataset_name}")
+    stats_df = (
+        pd.DataFrame(
+            {
+                col: 0 for col in DATASET_STATS_COLUMNS
+            },
+            index=[0]
+        )
+        .astype(
+            {
+                "train_length": "int16",
+                "test_length": "int16",
+                "num_classes": "int16",
+                "num_class_permutations": "int16",
+                "label_imbalance_ratio": "float64",
+                "dataset_name": "string",
+            }
+        )
+    )
+    multi_test_file_name = f"{dataset_name}_multi_test.csv"
+    multi_train_file_name = f"{dataset_name}_multi_train.csv"
 
-    def get_processed_datasets(self):
-        with open("processed_files.txt", "r") as f:
-            processed_datasets = f.readlines()
-        processed_datasets = set([ds[:5] for ds in processed_datasets])
-        print(f"Found {len(processed_datasets)} already processed datasets.")
-        return processed_datasets
+    if multi_test_file_name in dataset_files and multi_train_file_name in dataset_files:
+        multi_test_df = pd.read_csv(multi_test_file_name, sep=";")
+        multi_train_df = pd.read_csv(multi_train_file_name, sep=";")
 
-    def run_tasks(self):
-        os.chdir(self.WORKING_DIR)
-        self.build_output_dir_structure()
+        stats_df["test_length"] = multi_test_df.shape[0]
+        stats_df["train_length"] = multi_train_df.shape[0]
 
-        for task in self.tasks: 
-            output_task = [ot for ot in self.output_tasks if ot.name == task.name][0]
+        train_value_counts = multi_train_df["label"].value_counts()
+        stats_df["label_imbalance_ratio"] = train_value_counts.min() / train_value_counts.max()
+    else:
+        test_df = pd.read_csv(f"{dataset_name}_bin_test_0_1.csv", sep=";")
+        train_df = pd.read_csv(f"{dataset_name}_bin_train_0_1.csv", sep=";")
 
-            datasets = self.dataset_map[task.name]
-            output_datasets = self.output_dataset_map[task.name]
+        stats_df["test_length"] = test_df.shape[0]
+        stats_df["train_length"] = train_df.shape[0]
 
-            failed = {}
+        train_value_counts = train_df["label"].value_counts()
+        stats_df["label_imbalance_ratio"] = train_value_counts.min() / train_value_counts.max()
 
-            for output_dataset in output_datasets:
-                if output_dataset.name in self.processed_datasets:
-                    print(f"{output_dataset.name} is already processed. Skipping...")
-                    continue
+    explained_df = pd.read_csv(f"{dataset_name}_explained.csv", sep=";")
+    num_classes = explained_df.shape[0]
+    stats_df["num_classes"] = num_classes 
+    stats_df["num_class_permutations"] = int((num_classes * (num_classes - 1)) / 2)
 
-                dataset = self.find_corresponding_dataset(output_dataset.name, datasets)
+    stats_df["dataset_name"] = dataset_name
+    stats_df.to_csv(f"output/stats_{dataset_name}.csv", index=False, sep=";")    
+    print(f"Finished processing stats for {dataset_name}")
 
-                os.chdir(dataset.absolute_path)
-                python_script_path = os.path.join(dataset.absolute_path, f"{dataset.name}.py")
+    return stats_df
 
-                try:
-                    with open(python_script_path, 'r') as f:
-                        print(f"executing {python_script_path}")
-                        exec(f.read(), locals(), locals())
-                except:
-                    format_exc = traceback.format_exc()
+def run_tasks_stats(task_name: str, datasets_df: pd.DataFrame):
+    """
+    Task level:
+    Number of datasets: sum(num_files)
+    Total class permutations: sum(num_class_permutations)
+    Maximum number of classes: max(num_classes)
+    Minimum number of classes: min(num_classes)
+    Number of Multiclass datasets by default: use mask for num_classes > 2
+    Number of Binary datasets by default: use mask for num_classes < 3
+    Max imbalance ratio
+    Min imbalance ratio
+    Largest training set: sa_01
+    Smallest training set: sa_12
+    Largest test set: sa_05
+    Smallest test set: sa_06
+    """
+    print(f"Processing task stats for {task_name}")
+    task_df = (
+        pd.DataFrame(
+            {
+                col: 0 for col in TASK_STATS_COLUMNS
+            },
+            index=[0],
+        )
+        .astype(
+            {
+                "num_datasets": "int16",
+                "total_class_permutations": "int16",
+                "max_num_classes": "int16",
+                "min_num_classes": "int16",
+                "num_multiclass_datasets": "int16",
+                "num_binary_datasets": "int16",
+                "max_label_imbalance_ratio": "float64",
+                "min_label_imbalance_ratio": "float64",
+                "largest_train_set": "string",
+                "smallest_train_set": "string",
+                "largest_test_set": "string",
+                "smallest_test_set": "string",
+            }
+        )
+    )
+    task_df["num_datasets"] = datasets_df.shape[0]
+    task_df["total_class_permutations"] = datasets_df["num_class_permutations"].sum()
+    task_df["max_num_classes"] = datasets_df["num_classes"].max()
+    task_df["min_num_classes"] = datasets_df["num_classes"].min()
 
-                    print(f"{python_script_path} failed:\n{format_exc}")
+    multi_class_datasets_mask = datasets_df["num_classes"] > 2
+    task_df["num_multiclass_datasets"] = datasets_df.loc[multi_class_datasets_mask].shape[0]
+    task_df["num_binary_datasets"] = datasets_df.loc[~multi_class_datasets_mask].shape[0]
 
-                    failed[task.name] = format_exc
+    task_df["max_label_imbalance_ratio"] = datasets_df["label_imbalance_ratio"].max()
+    task_df["min_label_imbalance_ratio"] = datasets_df["label_imbalance_ratio"].min()
 
-                # Get all output files generated in current dir, ignoring current script
-                output_files = [f for f in os.listdir() if re.search("\.csv$", f) != None]
+    task_df["largest_train_set"] = datasets_df.iloc[datasets_df["train_length"].idxmax()]["dataset_name"]
+    task_df["smallest_train_set"] = datasets_df.iloc[datasets_df["train_length"].idxmin()]["dataset_name"]
 
-                for output_file in output_files:
-                    print(f"moving {output_file} to {output_dataset.absolute_path}")
-                    shutil.move(output_file, output_dataset.absolute_path)
+    task_df["largest_test_set"] = datasets_df.iloc[datasets_df["test_length"].idxmax()]["dataset_name"]
+    task_df["smallest_test_set"] = datasets_df.iloc[datasets_df["test_length"].idxmin()]["dataset_name"]
+    
+    task_df.to_csv(f"output/stats_{task_name}.csv", sep=";", index=False)
+    print(f"Finished processing task stats for {task_name}")
+
+# %%
+if __name__ == "__main__": 
+    files = get_processed_files()
+    dataset_file_map = build_dataset_file_map(files)
+    task_dataset_map = build_task_dataset_map(dataset_file_map)
+    run_stats(task_dataset_map)
