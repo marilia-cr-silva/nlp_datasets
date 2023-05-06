@@ -7,9 +7,16 @@ DATASET_STATS_COLUMNS = [
     "train_length",
     "test_length",
     "num_classes",
-    "num_class_permutations",
+    "hm_class_permutations",
     "label_imbalance_ratio",
     "dataset_name",
+]
+BOX_PLOT_COLUMNS = [
+    "train_length",
+    "test_length",
+    "num_classes",
+    "num_class_permutations",
+    "label_imbalance_ratio",
 ]
 TASK_STATS_COLUMNS = [
     "num_datasets",
@@ -59,6 +66,18 @@ def build_task_dataset_map(file_dataset_map: Dict[str, List[str]]):
 
 def run_stats(task_dataset_map: Dict[str, Any]):
     files_set = set(os.listdir())
+
+    tasks = task_dataset_map.keys()
+
+    metrics_df_map = {
+        metric: pd.DataFrame(
+            {
+                task: [] for task in tasks
+            }
+        )
+        for metric in BOX_PLOT_COLUMNS
+    }
+
     for task in task_dataset_map.keys():
         dataset_stats_df = get_all_dataset_stats(task, task_dataset_map, files_set)
 
@@ -66,7 +85,12 @@ def run_stats(task_dataset_map: Dict[str, Any]):
             print(f"{task} yielded no dataset stat results. Skipping...")
             continue
 
+        for metric in BOX_PLOT_COLUMNS:
+            metrics_df_map[metric][task] = dataset_stats_df[metric]
+
         run_tasks_stats(task, dataset_stats_df)
+
+    return metrics_df_map
 
 def get_all_dataset_stats(
     task_name: str,
