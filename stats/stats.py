@@ -7,7 +7,7 @@ DATASET_STATS_COLUMNS = [
     "train_length",
     "test_length",
     "num_classes",
-    "hm_class_permutations",
+    "num_class_perMutations",
     "label_imbalance_ratio",
     "dataset_name",
 ]
@@ -89,8 +89,6 @@ def run_stats(task_dataset_map: Dict[str, Any]):
             metrics_df_map[metric][task] = dataset_stats_df[metric]
 
         run_tasks_stats(task, dataset_stats_df)
-
-    return metrics_df_map
 
 def get_all_dataset_stats(
     task_name: str,
