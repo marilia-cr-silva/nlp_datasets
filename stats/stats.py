@@ -7,7 +7,7 @@ DATASET_STATS_COLUMNS = [
     "train_length",
     "test_length",
     "num_classes",
-    "num_class_perMutations",
+    "num_class_permutations",
     "label_imbalance_ratio",
     "dataset_name",
 ]
