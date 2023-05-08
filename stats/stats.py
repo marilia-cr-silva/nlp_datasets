@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from typing import Any, Dict, List, Set
 
+# %%
 DATASET_STATS_COLUMNS = [
     "train_length",
     "test_length",
@@ -50,7 +51,7 @@ def build_dataset_file_map(files: List[str]) -> Dict[str, List[str]]:
     return dataset_file_map
 
 def build_task_dataset_map(file_dataset_map: Dict[str, List[str]]):
-    tasks = ["fn", "hs", "sa", "sd", "tc"]
+    tasks = ["fn", "hs", "sa", "sd"]
 
     task_dataset_map = {}
 
@@ -67,28 +68,34 @@ def build_task_dataset_map(file_dataset_map: Dict[str, List[str]]):
 def run_stats(task_dataset_map: Dict[str, Any]):
     files_set = set(os.listdir())
 
-    tasks = task_dataset_map.keys()
-
     metrics_df_map = {
-        metric: pd.DataFrame(
-            {
-                task: [] for task in tasks
-            }
-        )
+        metric: pd.DataFrame()
         for metric in BOX_PLOT_COLUMNS
     }
+    tasks = task_dataset_map.keys()
 
-    for task in task_dataset_map.keys():
+    for task in tasks:
         dataset_stats_df = get_all_dataset_stats(task, task_dataset_map, files_set)
 
         if dataset_stats_df.empty:
             print(f"{task} yielded no dataset stat results. Skipping...")
             continue
 
-        for metric in BOX_PLOT_COLUMNS:
-            metrics_df_map[metric][task] = dataset_stats_df[metric]
-
         run_tasks_stats(task, dataset_stats_df)
+
+        for metric in BOX_PLOT_COLUMNS:
+            metrics_df_map[metric] = pd.concat(
+                [
+                    metrics_df_map[metric],
+                    dataset_stats_df[metric]
+                ],
+                axis=1
+            )
+
+    for metric in metrics_df_map.keys():
+        metrics_df_map[metric].columns = tasks
+    
+    return metrics_df_map
 
 def get_all_dataset_stats(
     task_name: str,
@@ -252,4 +259,4 @@ if __name__ == "__main__":
     files = get_processed_files()
     dataset_file_map = build_dataset_file_map(files)
     task_dataset_map = build_task_dataset_map(dataset_file_map)
-    run_stats(task_dataset_map)
+    metrics_df = run_stats(task_dataset_map)
