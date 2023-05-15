@@ -1,0 +1,9 @@
+name: sentence_transf
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - sentence-transformers
+  - pandas
+  - ipykernel
+prefix: /home/anaconda3/envs/sentence_transf
