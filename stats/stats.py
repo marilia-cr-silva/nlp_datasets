@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import pandas as pd
 import seaborn as sns
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Set, Optional
 
 # %%
 DATASET_STATS_COLUMNS = [
@@ -42,15 +42,87 @@ METRIC_TEXT_MAP = {
     "num_class_permutations": "Number of Label Permutations",
     "label_imbalance_ratio": "Label Imbalance Ratio",
 }
+"""
+Emotion	sa_02.py
+Emotion	sa_10.py
+Emotion	sa_14.py
+Emotion	sa_15.py
+Polarity	sa_01.py
+Polarity	sa_03.py
+Polarity	sa_04.py
+Polarity	sa_05.py
+Polarity	sa_06.py
+Polarity	sa_07.py
+Polarity	sa_11.py
+Polarity	sa_16.py
+Polarity	sa_17.py
+Utility	sa_08.py
+Utility	sa_09.py
+Utility	sa_12.py
+Utility	sa_13.py
+Utility	sa_18.py
+"""
+TASK_RENAMING_MAP = {
+    "ed": ["sa_02", "sa_10", "sa_14", "sa_15", "sa_19"],
+    "pc": [
+        "sa_01",
+        "sa_03",
+        "sa_04",
+        "sa_05",
+        "sa_06",
+        "sa_07",
+        "sa_11",
+        "sa_16",
+        "sa_17",
+    ],
+    "ua": ["sa_08", "sa_09", "sa_12", "sa_13", "sa_18"],
+}
+
+
+def rename_to_new_convention():
+    with open("proc_datasets.txt", "r") as f:
+        all_files = [file.strip() for file in f.readlines()]
+
+    for task in TASK_RENAMING_MAP:
+        for filename in all_files:
+            prefix = filename[:5]
+
+            if prefix in TASK_RENAMING_MAP[task]:
+                task_number = filename[3:5]
+
+                new_file = f"{task}_{task_number}_{filename[6:]}"
+
+                with open(filename, "r") as src, open(new_file, "w") as dst:
+                    content = src.read()
+                    dst.write(content)
+
+                os.remove(filename)
 
 
 # %%
-def get_processed_files() -> List[str]:
+def get_processed_files(use_new_convention: Optional[bool] = True) -> List[str]:
     with open("proc_datasets.txt", "r") as f:
         all_files = [file.strip() for file in f.readlines()]
+
+    if not use_new_convention:
+        return all_files
+
+    for task in TASK_RENAMING_MAP:
+        for index, filename in enumerate(all_files):
+            prefix = filename[:5]
+
+            if prefix not in TASK_RENAMING_MAP[task]:
+                continue
+
+            task_number = filename[3:5]
+
+            new_file = f"{task}_{task_number}_{filename[6:]}"
+            all_files[index] = new_file
+
     return all_files
 
 
+# %%
 def build_dataset_file_map(files: List[str]) -> Dict[str, List[str]]:
     datasets = set([f[:5] for f in files])
     dataset_file_map = {}
@@ -63,7 +135,7 @@ def build_dataset_file_map(files: List[str]) -> Dict[str, List[str]]:
 
 
 def build_task_dataset_map(file_dataset_map: Dict[str, List[str]]):
-    tasks = ["fn", "hs", "sa", "sd"]
+    tasks = ["fn", "hs", "ed", "ua", "pc", "sd"]
 
     task_dataset_map = {}
 
