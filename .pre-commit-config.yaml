@@ -8,3 +8,5 @@ repos:
     rev: v2.0.2
     hooks:
     -   id: autopep8
+        additional_dependencies:
+        -   pycodestyle==2.10.0
