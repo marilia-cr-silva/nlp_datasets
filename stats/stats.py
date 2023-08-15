@@ -1,9 +1,10 @@
 # %%
-import matplotlib.pyplot as plt
 import os
+from typing import Any, Dict, List, Optional, Set
+
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from typing import Any, Dict, List, Set, Optional
 
 # %%
 DATASET_STATS_COLUMNS = [
@@ -142,7 +143,9 @@ def build_task_dataset_map(file_dataset_map: Dict[str, List[str]]):
     for task in tasks:
         task_dataset_map[task] = {}
 
-        current_datasets = [d for d in file_dataset_map.keys() if d.startswith(task)]
+        current_datasets = [
+            d for d in file_dataset_map.keys() if d.startswith(task)
+        ]
 
         for dataset in current_datasets:
             task_dataset_map[task][dataset] = file_dataset_map[dataset]
@@ -157,7 +160,9 @@ def run_stats(task_dataset_map: Dict[str, Any]):
     tasks = task_dataset_map.keys()
 
     for task in tasks:
-        dataset_stats_df = get_all_dataset_stats(task, task_dataset_map, files_set)
+        dataset_stats_df = get_all_dataset_stats(
+            task, task_dataset_map, files_set
+        )
 
         if dataset_stats_df.empty:
             print(f"{task} yielded no dataset stat results. Skipping...")
@@ -270,7 +275,8 @@ def run_dataset_stats(dataset_name: str, dataset_files: List[str]):
     explained_df = pd.read_csv(f"{dataset_name}_explained.csv", sep=";")
     num_classes = explained_df.shape[0]
     stats_df["num_classes"] = num_classes
-    stats_df["num_class_permutations"] = int((num_classes * (num_classes - 1)) / 2)
+    stats_df["num_class_permutations"] = int(
+        (num_classes * (num_classes - 1)) / 2)
 
     stats_df["dataset_name"] = dataset_name
     stats_df.to_csv(f"output/stats_{dataset_name}.csv", index=False, sep=";")

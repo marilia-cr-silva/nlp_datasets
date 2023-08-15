@@ -4,20 +4,22 @@ This .py file extracts the meta-features of each dataset.
 
 # %% loading libraries
 
+import gc
 import os
 import re
-import pandas as pd
-import numpy as np
-#!pip3 install spacy
-import spacy
-from spacy.lang.en import English
-from scipy.stats import entropy
-from sklearn.decomposition import PCA
-import gc
-#!pip3 install textstat
-import textstat
+
 #!pip3 install demoji
 import demoji
+import numpy as np
+import pandas as pd
+#!pip3 install spacy
+import spacy
+#!pip3 install textstat
+import textstat
+from scipy.stats import entropy
+from sklearn.decomposition import PCA
+from spacy.lang.en import English
+
 demoji.download_codes()
 English = spacy.load("en_core_web_sm")
 
@@ -259,6 +261,7 @@ def get_features_textstat(row: pd.Series) -> list:
             value_coleman_liau_index, value_dale_chall_readability_score, value_gunning_fog,
             value_automated_readability_index, value_linsear_write_formula]
 
+
 # %% loading file
 df_corpus = pd.read_csv("sa_01_bin_train_0_1.csv", sep=";")
 df_test = pd.read_csv("sa_01_bin_test_0_1.csv", sep=";")
@@ -299,7 +302,7 @@ entropy_words_per_document = entropy(
 # %% Vocabulary
 vocabulary = get_vocab_length(df_corpus)
 vocabulary_document_ratio = (df_corpus["number_unique_tokens"].max(
-        ))/(df_corpus["number_unique_tokens"].min())
+))/(df_corpus["number_unique_tokens"].min())
 df_corpus["average_word_length"] = df_corpus.apply(
     get_average_word_length, axis=1)
 
@@ -307,7 +310,7 @@ df_corpus["average_word_length"] = df_corpus.apply(
 df_corpus[["flesch_reading_ease", "smog_index", "flesch_kincaid_grade", "coleman_liau_index",
            "dale_chall_readability_score", "gunning_fog", "automated_readability_index",
            "linsear_write_formula"]] = df_corpus.apply(
-                                        get_features_textstat, axis=1, result_type="expand")
+    get_features_textstat, axis=1, result_type="expand")
 
 # %% Lexical Features
 df_corpus[["ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN",
@@ -400,4 +403,5 @@ df_corpus_final.to_csv(
 # %%
 with open("processed_files.txt", "r") as f:
     document_file = f.read().split("\n")
-selected_files = [file_name for file_name in document_file if file_name[6:15]!="explained"]
+selected_files = [
+    file_name for file_name in document_file if file_name[6:15] != "explained"]

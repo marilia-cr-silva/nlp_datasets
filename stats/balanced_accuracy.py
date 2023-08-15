@@ -81,11 +81,13 @@ def plot(df: pd.DataFrame, title: str, rgb_hex: str) -> None:
 
 
 # %% Plotting AutoGluon
-df_autogluon = pd.DataFrame(dict(zip(datasets, list_autogluon)), index=range(1))
+df_autogluon = pd.DataFrame(
+    dict(zip(datasets, list_autogluon)), index=range(1))
 plot(df_autogluon, title="AutoGluon", rgb_hex="#66c2a5")
 
 # %% Plotting auto-sklearn
-df_autosklearn = pd.DataFrame(dict(zip(datasets, list_autosklearn)), index=range(1))
+df_autosklearn = pd.DataFrame(
+    dict(zip(datasets, list_autosklearn)), index=range(1))
 plot(df_autosklearn, title="auto-sklearn", rgb_hex="#fc8d62")
 
 # %% Plotting Logistic Regression

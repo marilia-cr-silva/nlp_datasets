@@ -11,23 +11,21 @@ This .py file runs the AutoGluon AutoML System
 """
 # %%
 import os
-import pandas as pd
-import numpy as np
-import sklearn.metrics
-from sentence_transformers import SentenceTransformer
-from transformers import (
-    AutoTokenizer,
-    TFAutoModel,
-)
-from autogluon.tabular import TabularDataset, TabularPredictor
 
+import numpy as np
+import pandas as pd
+import sklearn.metrics
+from autogluon.tabular import TabularDataset, TabularPredictor
+from sentence_transformers import SentenceTransformer
 from sklearn.metrics import balanced_accuracy_score
+from transformers import AutoTokenizer, TFAutoModel
 
 # %%
 
 # %%
 NAME_TEXT_COLUMN = "text"
 NAME_TARGET_COLUMN = "label"
+
 
 def sent_transformer(name_lm: str, df_dataset: pd.DataFrame) -> list:
     """
@@ -54,22 +52,22 @@ def sent_transformer(name_lm: str, df_dataset: pd.DataFrame) -> list:
     return embed_list
 
 
-df_train = pd.read_csv("sa_01_bin_train_0_1.csv",sep=";")
-df_test = pd.read_csv("sa_01_bin_test_0_1.csv",sep=";")
+df_train = pd.read_csv("sa_01_bin_train_0_1.csv", sep=";")
+df_test = pd.read_csv("sa_01_bin_test_0_1.csv", sep=";")
 
 # %%
 X_train = np.array(sent_transformer(
-                    name_lm="sentence-transformers/all-MiniLM-L6-v2",
-                    df_dataset=df_train))
+    name_lm="sentence-transformers/all-MiniLM-L6-v2",
+    df_dataset=df_train))
 y_train = np.array(df_train["label"])
 # %%
 X_test = np.array(df_test["text"])
 X_test = np.array(sent_transformer(
-                    name_lm="sentence-transformers/all-MiniLM-L6-v2",
-                    df_dataset=df_test))
+    name_lm="sentence-transformers/all-MiniLM-L6-v2",
+    df_dataset=df_test))
 y_test = np.array(df_test["label"])
 
 save_path = 'agModels-predictClass'  # specifies folder to store trained models
-predictor = TabularPredictor(label="label").fit(df_train, time_limit=60, presets='high_quality')
+predictor = TabularPredictor(label="label").fit(
+    df_train, time_limit=60, presets='high_quality')
 y_pred = predictor.predict(df_test)
-

@@ -1,10 +1,11 @@
 # %%
-import shutil
-import traceback
 import os
 import re
+import shutil
+import traceback
 from dataclasses import dataclass
 from typing import Dict, List
+
 
 @dataclass
 class DirConfig:
@@ -39,7 +40,7 @@ class TasksRunner:
     def get_tasks_dir_config(self) -> List[DirConfig]:
         current_dir = os.getcwd()
 
-        if current_dir != self.WORKING_DIR: 
+        if current_dir != self.WORKING_DIR:
             os.chdir(self.WORKING_DIR)
 
         tasks = [
@@ -64,13 +65,13 @@ class TasksRunner:
                     name=ds,
                     absolute_path=os.path.join(task.absolute_path, ds)
                 )
-                for ds in os.listdir(task.absolute_path) 
+                for ds in os.listdir(task.absolute_path)
                 if re.search("[a-z]{2}_[0-9]{2}", ds) != None
             ]
             dataset_map[task.name] = datasets
 
         return dataset_map
-    
+
     def get_output_tasks_dir_config(self) -> List[DirConfig]:
         return [
             DirConfig(
@@ -79,21 +80,22 @@ class TasksRunner:
             )
             for task in self.tasks
         ]
-    
+
     def get_output_dataset_map(self) -> Dict[str, List[DirConfig]]:
         output_dataset_map = {}
         for task_name, datasets in self.dataset_map.items():
             output_dataset_map[task_name] = [
                 DirConfig(
                     name=ds.name,
-                    absolute_path=os.path.join(self.WORKING_DIR, task_name, ds.name)
+                    absolute_path=os.path.join(
+                        self.WORKING_DIR, task_name, ds.name)
                 )
                 for ds in datasets
             ]
         return output_dataset_map
 
     def build_output_dir_structure(self) -> None:
-        if os.getcwd() != self.WORKING_DIR: 
+        if os.getcwd() != self.WORKING_DIR:
             os.chdir(self.WORKING_DIR)
 
         for task in self.output_tasks:
@@ -109,7 +111,8 @@ class TasksRunner:
         for dataset in datasets:
             if dataset.name == output_dataset_name:
                 return dataset
-        raise ValueError(f"Could not find corresponding dataset for {dataset.name}")
+        raise ValueError(
+            f"Could not find corresponding dataset for {dataset.name}")
 
     def get_processed_datasets(self):
         with open("processed_files.txt", "r") as f:
@@ -122,8 +125,9 @@ class TasksRunner:
         os.chdir(self.WORKING_DIR)
         self.build_output_dir_structure()
 
-        for task in self.tasks: 
-            output_task = [ot for ot in self.output_tasks if ot.name == task.name][0]
+        for task in self.tasks:
+            output_task = [
+                ot for ot in self.output_tasks if ot.name == task.name][0]
 
             datasets = self.dataset_map[task.name]
             output_datasets = self.output_dataset_map[task.name]
@@ -132,13 +136,16 @@ class TasksRunner:
 
             for output_dataset in output_datasets:
                 if output_dataset.name in self.processed_datasets:
-                    print(f"{output_dataset.name} is already processed. Skipping...")
+                    print(
+                        f"{output_dataset.name} is already processed. Skipping...")
                     continue
 
-                dataset = self.find_corresponding_dataset(output_dataset.name, datasets)
+                dataset = self.find_corresponding_dataset(
+                    output_dataset.name, datasets)
 
                 os.chdir(dataset.absolute_path)
-                python_script_path = os.path.join(dataset.absolute_path, f"{dataset.name}.py")
+                python_script_path = os.path.join(
+                    dataset.absolute_path, f"{dataset.name}.py")
 
                 try:
                     with open(python_script_path, 'r') as f:
@@ -152,8 +159,10 @@ class TasksRunner:
                     failed[task.name] = format_exc
 
                 # Get all output files generated in current dir, ignoring current script
-                output_files = [f for f in os.listdir() if re.search("\.csv$", f) != None]
+                output_files = [f for f in os.listdir(
+                ) if re.search("\.csv$", f) != None]
 
                 for output_file in output_files:
-                    print(f"moving {output_file} to {output_dataset.absolute_path}")
+                    print(
+                        f"moving {output_file} to {output_dataset.absolute_path}")
                     shutil.move(output_file, output_dataset.absolute_path)

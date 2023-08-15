@@ -1,38 +1,38 @@
 # %%
-import pandas as pd
 import numpy as np
-from tpot import TPOTClassifier
+import pandas as pd
 from sklearn.metrics import balanced_accuracy_score
+from tpot import TPOTClassifier
 
 # %% loading training and test sets
 
 list_files = [['embedded_hs_01_bin_test_0_1.pkl',
-                'embedded_hs_01_bin_train_0_1.pkl'],
-                ['embedded_hs_02_multi_test.pkl',
-                'embedded_hs_02_multi_train.pkl'],
-                ["embedded_hs_03_bin_test_0_1.pkl",
-                 "embedded_hs_03_bin_train_0_1.pkl"],
-                ['embedded_hs_04_bin_test_0_1.pkl',
-                'embedded_hs_04_bin_train_0_1.pkl'],
-                ['embedded_hs_05_multi_test.pkl',
-                'embedded_hs_05_multi_train.pkl'],
-                ['embedded_hs_06_bin_test_0_1.pkl',
-                'embedded_hs_06_bin_train_0_1.pkl'],
-                ['embedded_hs_07_bin_test_0_1.pkl',
-                'embedded_hs_07_bin_train_0_1.pkl'],
-                ['embedded_hs_08_bin_test_0_1.pkl',
-                'embedded_hs_08_bin_train_0_1.pkl'],
-                ['embedded_hs_09_bin_test_0_1.pkl',
-                'embedded_hs_09_bin_train_0_1.pkl'],
-                ['embedded_hs_10_bin_test_0_1.pkl',
-                'embedded_hs_10_bin_train_0_1.pkl'],
-                ['embedded_hs_11_bin_test_0_1.pkl',
-                'embedded_hs_11_bin_train_0_1.pkl'],
-                ['embedded_hs_12_bin_test_0_1.pkl',
-                'embedded_hs_12_bin_train_0_1.pkl'],
-                ['embedded_hs_13_multi_test.pkl',
-                'embedded_hs_13_multi_train.pkl']
-                ]
+               'embedded_hs_01_bin_train_0_1.pkl'],
+              ['embedded_hs_02_multi_test.pkl',
+               'embedded_hs_02_multi_train.pkl'],
+              ["embedded_hs_03_bin_test_0_1.pkl",
+               "embedded_hs_03_bin_train_0_1.pkl"],
+              ['embedded_hs_04_bin_test_0_1.pkl',
+               'embedded_hs_04_bin_train_0_1.pkl'],
+              ['embedded_hs_05_multi_test.pkl',
+               'embedded_hs_05_multi_train.pkl'],
+              ['embedded_hs_06_bin_test_0_1.pkl',
+               'embedded_hs_06_bin_train_0_1.pkl'],
+              ['embedded_hs_07_bin_test_0_1.pkl',
+               'embedded_hs_07_bin_train_0_1.pkl'],
+              ['embedded_hs_08_bin_test_0_1.pkl',
+               'embedded_hs_08_bin_train_0_1.pkl'],
+              ['embedded_hs_09_bin_test_0_1.pkl',
+               'embedded_hs_09_bin_train_0_1.pkl'],
+              ['embedded_hs_10_bin_test_0_1.pkl',
+               'embedded_hs_10_bin_train_0_1.pkl'],
+              ['embedded_hs_11_bin_test_0_1.pkl',
+               'embedded_hs_11_bin_train_0_1.pkl'],
+              ['embedded_hs_12_bin_test_0_1.pkl',
+               'embedded_hs_12_bin_train_0_1.pkl'],
+              ['embedded_hs_13_multi_test.pkl',
+               'embedded_hs_13_multi_train.pkl']
+              ]
 
 # %%
 for item_pair in list_files:
@@ -44,9 +44,9 @@ for item_pair in list_files:
     X_test = np.array(df_test["text"].tolist())
     y_true = np.array(df_test["label"].tolist())
     pipeline_optimizer = TPOTClassifier(generations=5, population_size=5, cv=5,
-                                    random_state=42, verbosity=2,
-                                    scoring = "balanced_accuracy",
-                                    max_time_mins = 15)
+                                        random_state=42, verbosity=2,
+                                        scoring="balanced_accuracy",
+                                        max_time_mins=15)
     pipeline_optimizer.fit(X_train, y_train)
     y_pred = pipeline_optimizer.predict(X_test)
     bal_acc_score = balanced_accuracy_score(y_true, y_pred)
