@@ -11,17 +11,18 @@
 """
 
 
+import csv
+import html
+import io
+import re
+import warnings
+
+import numpy as np
 # %% loading libraries
 import pandas as pd
-import numpy as np
-from tqdm import tqdm
-from sklearn.model_selection import train_test_split
-import re
-import html
 from bs4 import BeautifulSoup
-import csv
-import io
-import warnings
+from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 
 warnings.filterwarnings("ignore")
 
@@ -132,13 +133,15 @@ def noise_mitigation(aux):
     )  # if it has several types of quotations in the beginning
     string = re.sub('"+', '"', string)
 
-    string = re.sub(r"[а-яА-Я]", "", string)  # Cyrillic characters [\u4000-\u04ff]
+    # Cyrillic characters [\u4000-\u04ff]
+    string = re.sub(r"[а-яА-Я]", "", string)
     string = re.sub(r"[\u4e00-\u9fff]+", "", string)  # Chinese characters
     string = re.sub(
         r"[\u0621-\u064a\ufb50-\ufdff\ufe70-\ufefc]", "", string
     )  # Arabic Characters
     string = re.sub("\(\/\S+\)", "", string)
-    string = re.sub("\[|\]|\{|\}|\(|\)|\>|\<|\*|\=|\_", "", string)  # e.g., [](){}
+    string = re.sub("\[|\]|\{|\}|\(|\)|\>|\<|\*|\=|\_",
+                    "", string)  # e.g., [](){}
     string = re.sub(
         "^\"+|^'+|\"+$|'+$", "", string
     )  # if it has several types of quotations in the beginning

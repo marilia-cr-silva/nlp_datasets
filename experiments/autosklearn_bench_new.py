@@ -1,40 +1,42 @@
 # %%
-import autosklearn.classification
 import os
-import pandas as pd
-import numpy as np
-from sklearn.metrics import balanced_accuracy_score
 import warnings
+
+import autosklearn.classification
+import numpy as np
+import pandas as pd
+from sklearn.metrics import balanced_accuracy_score
+
 warnings.filterwarnings("ignore")
 # %% loading training and test sets
 
 list_files = [['embedded_hs_01_bin_test_0_1.pkl',
-                'embedded_hs_01_bin_train_0_1.pkl'],
-                ['embedded_hs_02_multi_test.pkl',
-                'embedded_hs_02_multi_train.pkl'],
-                ["embedded_hs_03_bin_test_0_1.pkl",
-                 "embedded_hs_03_bin_train_0_1.pkl"],
-                ['embedded_hs_04_bin_test_0_1.pkl',
-                'embedded_hs_04_bin_train_0_1.pkl'],
-                ['embedded_hs_05_multi_test.pkl',
-                'embedded_hs_05_multi_train.pkl'],
-                ['embedded_hs_06_bin_test_0_1.pkl',
-                'embedded_hs_06_bin_train_0_1.pkl'],
-                ['embedded_hs_07_bin_test_0_1.pkl',
-                'embedded_hs_07_bin_train_0_1.pkl'],
-                ['embedded_hs_08_bin_test_0_1.pkl',
-                'embedded_hs_08_bin_train_0_1.pkl'],
-                ['embedded_hs_09_bin_test_0_1.pkl',
-                'embedded_hs_09_bin_train_0_1.pkl'],
-                ['embedded_hs_10_bin_test_0_1.pkl',
-                'embedded_hs_10_bin_train_0_1.pkl'],
-                ['embedded_hs_11_bin_test_0_1.pkl',
-                'embedded_hs_11_bin_train_0_1.pkl'],
-                ['embedded_hs_12_bin_test_0_1.pkl',
-                'embedded_hs_12_bin_train_0_1.pkl'],
-                ['embedded_hs_13_multi_test.pkl',
-                'embedded_hs_13_multi_train.pkl']
-                ]
+               'embedded_hs_01_bin_train_0_1.pkl'],
+              ['embedded_hs_02_multi_test.pkl',
+               'embedded_hs_02_multi_train.pkl'],
+              ["embedded_hs_03_bin_test_0_1.pkl",
+               "embedded_hs_03_bin_train_0_1.pkl"],
+              ['embedded_hs_04_bin_test_0_1.pkl',
+               'embedded_hs_04_bin_train_0_1.pkl'],
+              ['embedded_hs_05_multi_test.pkl',
+               'embedded_hs_05_multi_train.pkl'],
+              ['embedded_hs_06_bin_test_0_1.pkl',
+               'embedded_hs_06_bin_train_0_1.pkl'],
+              ['embedded_hs_07_bin_test_0_1.pkl',
+               'embedded_hs_07_bin_train_0_1.pkl'],
+              ['embedded_hs_08_bin_test_0_1.pkl',
+               'embedded_hs_08_bin_train_0_1.pkl'],
+              ['embedded_hs_09_bin_test_0_1.pkl',
+               'embedded_hs_09_bin_train_0_1.pkl'],
+              ['embedded_hs_10_bin_test_0_1.pkl',
+               'embedded_hs_10_bin_train_0_1.pkl'],
+              ['embedded_hs_11_bin_test_0_1.pkl',
+               'embedded_hs_11_bin_train_0_1.pkl'],
+              ['embedded_hs_12_bin_test_0_1.pkl',
+               'embedded_hs_12_bin_train_0_1.pkl'],
+              ['embedded_hs_13_multi_test.pkl',
+               'embedded_hs_13_multi_train.pkl']
+              ]
 
 # %%
 for item_pair in list_files:
@@ -46,7 +48,8 @@ for item_pair in list_files:
     X_test = np.array(df_test["text"].tolist())
     y_true = np.array(df_test["label"].tolist())
 
-    automl_sklearn = autosklearn.classification.AutoSklearnClassifier(time_left_for_this_task=900)
+    automl_sklearn = autosklearn.classification.AutoSklearnClassifier(
+        time_left_for_this_task=900)
 
     automl_sklearn.fit(X_train, y_train)
     y_pred = automl_sklearn.predict(X_test)
