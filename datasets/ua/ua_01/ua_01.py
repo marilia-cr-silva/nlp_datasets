@@ -1,11 +1,11 @@
-'''
+"""
 @inproceedings{app_reviews,
     title = {Software Applications User Reviews},
     author = {Grano, Giovanni and Di Sorbo, Andrea and Mercaldo, Francesco and Visaggio, Corrado A and Canfora, Gerardo and Panichella, Sebastiano},
     year={2017},
 }
-'''
-
+"""
+# %% loading libraries
 # from zipfile import ZipFile
 # import tarfile
 import csv
@@ -13,15 +13,12 @@ import html
 import io
 import os
 import re
-
 import fasttext
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-
 from datasets import load_dataset
 
 # %% loading language detection model
@@ -155,7 +152,7 @@ def noise_mitigation(aux):
 # %% function to identify language
 
 
-def detect_language(instance):
+def detect_language(instance) -> str:
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
 
     return aux
@@ -180,8 +177,8 @@ df = df[["text", "label"]]
 df_train, df_test = train_test_split(
     df, test_size=0.3, random_state=42, shuffle=True)
 
-df_train.to_csv(f"ua_01_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"ua_01_multi_test.csv", sep=";", index=False)
+df_train.to_csv("ua_01_multi_train.csv", sep=";", index=False)
+df_test.to_csv("ua_01_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

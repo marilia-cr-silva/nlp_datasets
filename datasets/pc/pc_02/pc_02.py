@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # %% bibtex
 
-'''
+"""
 @article{go2009twitter_sentiment140,
   title={Twitter sentiment classification using distant supervision},
   author={Go, Alec and Bhayani, Richa and Huang, Lei},
@@ -11,19 +11,17 @@
   pages={2009},
   year={2009}
 }
-'''
+"""
 
+# %% loading libraries
 import html
 import os
 import re
-
 import fasttext
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-
 from datasets import load_dataset
 
 # %% loading language detection model
@@ -157,7 +155,7 @@ def noise_mitigation(aux):
 # %% function to identify language
 
 
-def detect_language(instance):
+def detect_language(instance) -> str:
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
 
     return aux

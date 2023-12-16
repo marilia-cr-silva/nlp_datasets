@@ -1,12 +1,18 @@
-'''
-TODO: Place bibtext here
-'''
+"""
+@inproceedings{kurrek-etal-2020-towards-slur-corpus,
+    title = {\href{https://doi.org/10.1145/10.18653/v1/2020.alw-1.17}{"Towards a Comprehensive Taxonomy and Large-Scale Annotated Corpus for Online Slur Usage"}},
+    author = "Kurrek, Jana and Saleem, Haji Mohammad and Ruths, Derek",
+    booktitle = "Proceedings of the Fourth Workshop on Online Abuse and Harms",
+    year = "2020",
+    publisher = "Association for Computational Linguistics",
+    pages = "138--149",
+}
+"""
 
 # %% loading libraries
 import html
 import re
 import warnings
-
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -127,7 +133,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)
@@ -180,8 +186,8 @@ df_test.rename(columns={"new_text": "text"}, inplace=True)
 df_test = df_test.sample(frac=1, random_state=42).reset_index(drop=True)
 
 # %%
-df_train.to_csv(f"hs_15_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"hs_15_multi_test.csv", sep=";", index=False)
+df_train.to_csv("hs_15_multi_train.csv", sep=";", index=False)
+df_test.to_csv("hs_15_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

@@ -1,26 +1,23 @@
 # %% bibtex
 
-'''
+"""
 "@article{kiesel2019datahyperpartisansemeval,
   title={Data for pan at semeval 2019 task 4: Hyperpartisan news detection},
   author={Kiesel, Johannes and Mestre, Maria and Shukla, Rishabh and Vincent, Emmanuel and Corney, David and Adineh, Payam and Stein, Benno and Potthast, Martin},
   year={2019}
 }"
-'''
+"""
 
 # %% loading libraries
-
 import html
 import os
 import re
 import warnings
-
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-
 from datasets import load_dataset
 
 warnings.filterwarnings("ignore")
@@ -153,8 +150,8 @@ df = df.drop_duplicates(subset=['text'], keep='first')
 df_train, df_test = train_test_split(
     df, test_size=0.3, random_state=42, shuffle=True)
 
-df_train.to_csv(f"sd_01_bin_train.csv", sep=";", index=False)
-df_test.to_csv(f"sd_01_bin_test.csv", sep=";", index=False)
+df_train.to_csv("sd_01_bin_train.csv", sep=";", index=False)
+df_test.to_csv("sd_01_bin_test.csv", sep=";", index=False)
 
 unique_classes = sorted(df_train['label'].unique())
 

@@ -1,4 +1,4 @@
-'''
+"""
 @inproceedings{basile-etal-2019-semeval-hateval,
     title = "{S}em{E}val-2019 Task 5: Multilingual Detection of Hate Speech Against Immigrants and Women in Twitter",
     author = "Basile, Valerio  and
@@ -18,15 +18,13 @@
     doi = "10.18653/v1/S19-2007",
     pages = "54--63",
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
 import warnings
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 
@@ -144,7 +142,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)

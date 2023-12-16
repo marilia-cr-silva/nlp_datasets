@@ -1,0 +1,1 @@
+hs_15_multi_test; acc: 0.8195859701812721; bal acc: 0.4934681037045451; f1-score: 0.4983070421217379; autosklearn

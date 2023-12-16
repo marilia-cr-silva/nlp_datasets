@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # %% bibtex
 
-'''
+"""
 @inproceedings{founta2018large_twitter_abusive,
     title={Large Scale Crowdsourcing and Characterization of Twitter Abusive Behavior},
     author={Founta, Antigoni-Maria and Djouvas, Constantinos and Chatzakou, Despoina and Leontiadis, Ilias and Blackburn, Jeremy and Stringhini, Gianluca and Vakali, Athena and Sirivianos, Michael and Kourtellis, Nicolas},
@@ -9,15 +9,13 @@
     year={2018},
     organization={AAAI Press}
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
 import warnings
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
@@ -178,8 +176,8 @@ df_test.rename(columns={"new_text": "text"}, inplace=True)
 df_test = df_test.sample(frac=1, random_state=42).reset_index(drop=True)
 
 # %%
-df_train.to_csv(f"hs_05_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"hs_05_multi_test.csv", sep=";", index=False)
+df_train.to_csv("hs_05_multi_train.csv", sep=";", index=False)
+df_test.to_csv("hs_05_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

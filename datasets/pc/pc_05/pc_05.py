@@ -18,16 +18,14 @@
 This file uses only the subtask A. In addition,
 the tweets were retrieved before being preprocessed.
 """
-
+# %% loading libraries
 import gc
 import html
 import os
 import re
 import warnings
 from io import StringIO
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -146,7 +144,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)

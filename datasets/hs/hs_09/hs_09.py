@@ -1,4 +1,4 @@
-'''
+"""
 @article{Gautam_Mathur_Gosangi_Mahata_Sawhney_Shah_2020_metoo,
     title={\#MeTooMA: Multi-Aspect Annotations of Tweets Related to the MeToo Movement},
     volume={14},    url={https://ojs.aaai.org/index.php/ICWSM/article/view/7292},
@@ -9,15 +9,13 @@
     month={May},
     pages={209-216}
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
 import warnings
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 
@@ -135,7 +133,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)

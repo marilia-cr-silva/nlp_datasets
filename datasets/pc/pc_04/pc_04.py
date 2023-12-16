@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # %% bibtex
 
-'''
+"""
 @inproceedings{10.1145/2507157.2507163_amazon_polarity,
     author = {McAuley, Julian and Leskovec, Jure},
     title = {Hidden Factors and Hidden Topics: Understanding Rating Dimensions with Review Text},
@@ -19,15 +19,13 @@
     location = {Hong Kong, China},
     series = {RecSys '13}
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
-
 import fasttext
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -165,7 +163,7 @@ def noise_mitigation(aux):
 # %% function to identify language
 
 
-def detect_language(instance):
+def detect_language(instance) -> str:
 
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # %% bibtex
 
-'''
+"""
 @inproceedings{hateoffensive,
     title = {Automated Hate Speech Detection and the Problem of Offensive Language},
     author = {Davidson, Thomas and Warmsley, Dana and Macy, Michael and Weber, Ingmar},
@@ -11,15 +11,13 @@
     location = {Montreal, Canada},
     pages = {512-515}
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
 import warnings
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
@@ -160,8 +158,8 @@ df_test.assign(
 df_test = df_test.drop_duplicates(subset=["text"], keep="first")
 df_test = df_test.sample(frac=1, random_state=42).reset_index(drop=True)
 
-df_train.to_csv(f"hs_02_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"hs_02_multi_test.csv", sep=";", index=False)
+df_train.to_csv("hs_02_multi_train.csv", sep=";", index=False)
+df_test.to_csv("hs_02_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

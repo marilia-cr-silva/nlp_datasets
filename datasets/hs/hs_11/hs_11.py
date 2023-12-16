@@ -1,4 +1,4 @@
-'''
+"""
 @inproceedings{10.1007/978-3-030-60470-7_11_sexist_workplace,
     author = {Grosz, Dylan and Conde-Cespedes, Patricia},
     title = {Automatic Detection of Sexist Statements Commonly Used at the Workplace},
@@ -14,19 +14,16 @@
     keywords = {LSTM, Natural Language Processing, Sexism, Hate speech, Attention mechanism, Workplace},
     location = {Singapore, Singapore}
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
 import warnings
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
-
 from datasets import load_dataset
 
 warnings.filterwarnings("ignore")
@@ -143,7 +140,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)

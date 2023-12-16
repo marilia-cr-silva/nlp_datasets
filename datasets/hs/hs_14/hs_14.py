@@ -1,6 +1,17 @@
-'''
-TODO: Place bibtex here
-'''
+"""
+@inproceedings{toxiCR_hate_speech_dataset_2023,
+author = {Sarker, Jaydeb},
+title = {\href{https://doi.org/10.1145/3551349.3559508}{‘Who Built This Crap?’ Developing a Software Engineering Domain Specific Toxicity Detector}},
+year = {2023},
+isbn = {9781450394758},
+publisher = {Association for Computing Machinery},
+booktitle = {Proceedings of the 37th IEEE/ACM International Conference on Automated Software Engineering},
+articleno = {200},
+numpages = {3},
+keywords = {deep learning, toxicity, NLP, developers interaction},
+series = {ASE '22}
+}
+"""
 
 # %% loading libraries
 import html
@@ -125,7 +136,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)

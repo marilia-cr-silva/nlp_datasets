@@ -1,4 +1,4 @@
-'''
+"""
 @inproceedings{NIPS2015_250cf8b5_ag_news_yelp,
  author = {Zhang, Xiang and Zhao, Junbo and LeCun, Yann},
  booktitle = {Advances in Neural Information Processing Systems},
@@ -13,20 +13,16 @@
 
 https://www.tensorflow.org/datasets/catalog/yelp_polarity_reviews?hl=en
 https://s3.amazonaws.com/fast-ai-nlp/yelp_review_polarity_csv.tgz
-'''
-
+"""
+# %% loading libraries
 import csv
 import html
 import io
-# from datasets import load_dataset
 import os
 import re
-# from zipfile import ZipFile
 import tarfile
-
 import fasttext
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -162,7 +158,7 @@ def noise_mitigation(aux):
 # %% function to identify language
 
 
-def detect_language(instance):
+def detect_language(instance) -> str:
 
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
 

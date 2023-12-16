@@ -14,12 +14,10 @@
 """
 
 # %% loading libraries
-
 import html
 import os
 import re
 import warnings
-
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -168,8 +166,8 @@ df_test = df_test.sample(frac=1, random_state=42).reset_index(drop=True)
 
 # %%
 
-df_train.to_csv(f"fn_01_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"fn_01_multi_test.csv", sep=";", index=False)
+df_train.to_csv("fn_01_multi_train.csv", sep=";", index=False)
+df_test.to_csv("fn_01_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

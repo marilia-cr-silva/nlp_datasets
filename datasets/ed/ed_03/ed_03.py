@@ -1,4 +1,4 @@
-'''
+"""
 @inproceedings{demszky-2020-goemotions,
     title = "{G}o{E}motions: A Dataset of Fine-Grained Emotions",
     author = "Demszky, Dorottya  and
@@ -15,20 +15,17 @@
     url = "https://www.aclweb.org/anthology/2020.acl-main.372",
     pages = "4040--4054",
 }
-'''
-
+"""
+# %% loading libraries
 import gc
 import html
 import os
 import re
-import warnings
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-
+import warnings
 warnings.filterwarnings("ignore")
 
 # %% function to reduce the noise
@@ -143,7 +140,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)
@@ -204,8 +201,8 @@ df_train.assign(
 df_train = df_train.drop_duplicates(subset=['text'], keep='first')
 df_train = df_train.sample(frac=1, random_state=42).reset_index(drop=True)
 
-df_train.to_csv(f"ed_03_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"ed_03_multi_test.csv", sep=";", index=False)
+df_train.to_csv("ed_03_multi_train.csv", sep=";", index=False)
+df_test.to_csv("ed_03_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

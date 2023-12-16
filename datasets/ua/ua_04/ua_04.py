@@ -1,12 +1,12 @@
-'''
+"""
 @inproceedings{marc_reviews_amazon_multi,
     title={The Multilingual Amazon Reviews Corpus},
     author={Keung, Phillip and Lu, Yichao and Szarvas, György and Smith, Noah A.},
     booktitle={Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing},
     year={2020}
 }
-'''
-
+"""
+# %% loading libraries
 # from zipfile import ZipFile
 # import tarfile
 import csv
@@ -14,17 +14,13 @@ import html
 import io
 import os
 import re
-import warnings
-
 import fasttext
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-
 from datasets import load_dataset
-
+import warnings
 warnings.filterwarnings("ignore")
 
 # %% loading language detection model
@@ -143,7 +139,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)
@@ -163,7 +159,7 @@ def noise_mitigation(aux):
 # %% function to identify language
 
 
-def detect_language(instance):
+def detect_language(instance) -> str:
 
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
 
@@ -199,8 +195,8 @@ df_train.assign(
 df_train = df_train.drop_duplicates(subset=['text'], keep='first')
 df_train = df_train.sample(frac=1, random_state=42).reset_index(drop=True)
 
-df_train.to_csv(f"ua_04_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"ua_04_multi_test.csv", sep=";", index=False)
+df_train.to_csv("ua_04_multi_train.csv", sep=";", index=False)
+df_test.to_csv("ua_04_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

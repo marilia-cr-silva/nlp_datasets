@@ -1,4 +1,4 @@
-'''
+"""
 "@inproceedings{saravia-etal-2018-carer-emotion,
     title = ""{CARER}: Contextualized Affect Representations for Emotion Recognition"",
     author = ""Saravia, Elvis  and
@@ -15,25 +15,21 @@
     doi = ""10.18653/v1/D18-1404"",
     pages = ""3687--3697"",
 }"
-'''
-
+"""
+# %% loading libraries
 import csv
 import html
 import io
 import os
 import re
-import warnings
-
 import fasttext
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-
 from datasets import load_dataset
-
+import warnings
 warnings.filterwarnings("ignore")
 
 # %% loading language detection model
@@ -167,10 +163,8 @@ def noise_mitigation(aux):
 # %% function to identify language
 
 
-def detect_language(instance):
-
+def detect_language(instance) -> str:
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
-
     return aux
 
 

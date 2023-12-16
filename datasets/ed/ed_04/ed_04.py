@@ -1,4 +1,4 @@
-'''
+"""
 "@inproceedings{chakravarthi-2020-hopeedi,
     title = ""{H}ope{EDI}: A Multilingual Hope Speech Detection Dataset for Equality, Diversity, and Inclusion"",
     author = ""Chakravarthi, Bharathi Raja"",
@@ -10,7 +10,7 @@
     url = ""https://www.aclweb.org/anthology/2020.peoples-1.5"",
     pages = ""41--53"",
 }"
-'''
+"""
 
 import html
 import os
@@ -144,7 +144,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)
@@ -164,7 +164,7 @@ def noise_mitigation(aux):
 # %% function to identify language
 
 
-def detect_language(instance):
+def detect_language(instance) -> str:
 
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
 
@@ -204,8 +204,8 @@ df_test = df_test.drop_duplicates(subset=['text'], keep='first')
 df_test = df_test.sample(frac=1, random_state=42).reset_index(
     drop=True)[['text', 'label']]
 
-df_train.to_csv(f"ed_04_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"ed_04_multi_test.csv", sep=";", index=False)
+df_train.to_csv("ed_04_multi_train.csv", sep=";", index=False)
+df_test.to_csv("ed_04_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

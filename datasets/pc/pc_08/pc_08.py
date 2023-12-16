@@ -1,4 +1,4 @@
-'''
+"""
 "@inproceedings{bastan-etal-2020-authors-persent,
     title = ""Author{'}s Sentiment Prediction"",
     author = ""Bastan, Mohaddeseh  and
@@ -15,20 +15,17 @@
     doi = ""10.18653/v1/2020.coling-main.52"",
     pages = ""604--615"",
 }"
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
 import warnings
-
 import fasttext
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-
 from datasets import load_dataset
 
 warnings.filterwarnings("ignore")
@@ -149,7 +146,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)
@@ -169,7 +166,7 @@ def noise_mitigation(aux):
 # %% function to identify language
 
 
-def detect_language(instance):
+def detect_language(instance) -> str:
 
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
 
@@ -214,8 +211,8 @@ df_test = df_test.sample(frac=1, random_state=42).reset_index(
     drop=True)[['text', 'label']]
 df_test = df_test.reset_index(drop=True)[['text', 'label']]
 
-df_train.to_csv(f"pc_08_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"pc_08_multi_test.csv", sep=";", index=False)
+df_train.to_csv("pc_08_multi_train.csv", sep=";", index=False)
+df_test.to_csv("pc_08_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

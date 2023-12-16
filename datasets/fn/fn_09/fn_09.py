@@ -161,8 +161,8 @@ df_test = df_test[["new_text", "label"]]
 df_test.rename(columns={"new_text": "text"}, inplace=True)
 df_test = df_test.sample(frac=1, random_state=42).reset_index(drop=True)
 
-df_train.to_csv(f"fn_09_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"fn_09_multi_test.csv", sep=";", index=False)
+df_train.to_csv("fn_09_multi_train.csv", sep=";", index=False)
+df_test.to_csv("fn_09_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

@@ -3,11 +3,9 @@ This .py file extracts the meta-features of each dataset.
 """
 
 # %% loading libraries
-
 import gc
 import os
 import re
-
 #!pip3 install demoji
 import demoji
 import numpy as np
@@ -20,6 +18,7 @@ from scipy.stats import entropy
 from sklearn.decomposition import PCA
 from spacy.lang.en import English
 
+# %%
 demoji.download_codes()
 English = spacy.load("en_core_web_sm")
 

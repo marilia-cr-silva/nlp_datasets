@@ -1,4 +1,4 @@
-'''
+"""
 @inproceedings{kawintiranon-singh-2021-knowledge-presidential_election_2020,
     title = "Knowledge Enhanced Masked Language Model for Stance Detection",
     author = "Kawintiranon, Kornraphop  and
@@ -12,7 +12,7 @@
     doi = "10.18653/v1/2021.naacl-main.376",
     pages = "4725--4735",
 }
-'''
+"""
 
 # %%
 
@@ -172,7 +172,7 @@ for count_files, file_name in enumerate(list_files):
 # %% saving to csv multiclass dataframe
 
 df_train.to_csv(f'sd_04_multi_train.csv', sep=';', index=False)
-df_test.to_csv(f"sd_04_multi_test.csv", sep=";", index=False)
+df_test.to_csv("sd_04_multi_test.csv", sep=";", index=False)
 
 unique_classes = sorted(df_train['label'].unique())
 

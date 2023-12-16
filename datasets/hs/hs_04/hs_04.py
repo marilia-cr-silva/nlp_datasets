@@ -6,16 +6,14 @@
   year         = "2018",
 }
 """
-
+# %% loading libraries
 import gc
 import html
 import os
 import re
 import warnings
-
 import fasttext
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 
@@ -133,7 +131,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)
@@ -157,7 +155,7 @@ language_identification_model = fasttext.load_model('lid.176.bin')
 # %% function to identify language
 
 
-def detect_language(instance):
+def detect_language(instance) -> str:
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
     return aux
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # %% bibtex
 
-'''
+"""
 @inproceedings{strapparava-mihalcea-2007-semeval_affective,
 title = "{S}em{E}val-2007 Task 14: Affective Text",
 author = "Strapparava, Carlo and Mihalcea, Rada",
@@ -13,15 +13,13 @@ publisher = "Association for Computational Linguistics",
 url = "https://www.aclweb.org/anthology/S07-1013",
 pages = "70--74",
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
 import tarfile
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -138,7 +136,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)
@@ -156,8 +154,6 @@ def noise_mitigation(aux):
     return string
 
 # %%
-
-
 # before parsing XML, the ampersand & was replaced with and
 df_train_xml = pd.read_xml("ed_01_text_train.xml")
 df_train_label = pd.read_csv("ed_01_label_train.emotions.gold", sep=" ", header=None,
@@ -201,8 +197,8 @@ df_test = df_test.drop_duplicates(subset=["text"], keep="first")
 df_test = df_test.sample(frac=1, random_state=42).reset_index(drop=True)
 
 # %% saving to csv multiclass dataframe
-df_train.to_csv(f"ed_01_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"ed_01_multi_test.csv", sep=";", index=False)
+df_train.to_csv("ed_01_multi_train.csv", sep=";", index=False)
+df_test.to_csv("ed_01_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

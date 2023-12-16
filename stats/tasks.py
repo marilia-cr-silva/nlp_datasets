@@ -151,7 +151,7 @@ class TasksRunner:
                     with open(python_script_path, 'r') as f:
                         print(f"executing {python_script_path}")
                         exec(f.read(), locals(), locals())
-                except:
+                except Exception:
                     format_exc = traceback.format_exc()
 
                     print(f"{python_script_path} failed:\n{format_exc}")

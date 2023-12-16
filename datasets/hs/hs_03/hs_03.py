@@ -1,4 +1,4 @@
-'''
+"""
 @inproceedings{gibert2018hate,
     title = "{Hate Speech Dataset from a White Supremacy Forum}",
     author = "de Gibert, Ona  and
@@ -14,18 +14,16 @@
     doi = "10.18653/v1/W18-5102",
     pages = "11--20",
 }
-'''
+"""
+# %%
+# %% loading libraries
 import html
 import os
 import re
 import warnings
-
 import numpy as np
-# %%
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
-
 warnings.filterwarnings("ignore")
 
 # %% function to reduce the noise

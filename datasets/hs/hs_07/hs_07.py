@@ -1,11 +1,11 @@
-'''
+"""
 @inproceedings{zampierietal2019_offenseval, 
     title={{Predicting the Type and Target of Offensive Posts in Social Media}}, 
     author={Zampieri, Marcos and Malmasi, Shervin and Nakov, Preslav and Rosenthal, Sara and Farra, Noura and Kumar, Ritesh}, 
     booktitle={Proceedings of NAACL}, 
     year={2019}
 }
-'''
+"""
 
 import html
 import os

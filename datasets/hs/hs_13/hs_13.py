@@ -1,22 +1,20 @@
 
-'''
+"""
 @article{mathew2020hatexplain,
       title={HateXplain: A Benchmark Dataset for Explainable Hate Speech Detection},
       author={Binny Mathew and Punyajoy Saha and Seid Muhie Yimam and Chris Biemann and Pawan Goyal and Animesh Mukherjee},
       year={2021},
       conference={AAAI conference on artificial intelligence}
 }
-'''
-
+"""
+# %% loading libraries
 import gc
 import html
 import os
 import re
 import warnings
 from collections import Counter
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -166,8 +164,8 @@ df_test = df_test[["text", "label"]]
 df_test = df_test.sample(frac=1, random_state=42).reset_index(drop=True)
 
 # %%
-df_train.to_csv(f"hs_13_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"hs_13_multi_test.csv", sep=";", index=False)
+df_train.to_csv("hs_13_multi_train.csv", sep=";", index=False)
+df_test.to_csv("hs_13_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

@@ -1,0 +1,1 @@
+hs_15_multi_test; acc: 0.856698487611284; bal acc: 0.5404686857953513; f1-score: 0.5497497918641157; autogluon

@@ -1,4 +1,4 @@
-'''
+"""
 "@misc{kaggle_hate_speech_offensive,
   author       = ""Kaggle"",
   title        = ""Hate Speech and Offensive Language Dataset"",
@@ -6,15 +6,13 @@
   year         = ""2020"",
 }"
 https://huggingface.co/datasets/tweets_hate_speech_detection
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
 import warnings
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
@@ -135,7 +133,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)

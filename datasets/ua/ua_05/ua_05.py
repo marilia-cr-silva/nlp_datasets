@@ -1,4 +1,4 @@
-'''
+"""
 @misc{kaggle_samsung_ssd,
   author={Kaggle},
   title = {Samsung Internal SSD Reviews},
@@ -6,20 +6,17 @@
   note = {Accessed: 2022-04-06},
   year={2020}
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
-import warnings
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-
+import warnings
 warnings.filterwarnings("ignore")
 
 # %% function to reduce the noise
@@ -134,7 +131,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)
@@ -187,8 +184,8 @@ df_test = df_test[["new_text", "label"]]
 df_test.rename(columns={"new_text": "text"}, inplace=True)
 df_test = df_test.sample(frac=1, random_state=42).reset_index(drop=True)
 
-df_train.to_csv(f"ua_05_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"ua_05_multi_test.csv", sep=";", index=False)
+df_train.to_csv("ua_05_multi_train.csv", sep=";", index=False)
+df_test.to_csv("ua_05_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

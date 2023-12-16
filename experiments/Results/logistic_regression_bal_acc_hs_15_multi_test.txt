@@ -1,0 +1,1 @@
+hs_15_multi_test; acc: 0.838142228896278; bal acc: 0.5394132542002972; f1-score: 0.5438446231696894; logistic_regression

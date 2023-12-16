@@ -1,4 +1,4 @@
-'''
+"""
 @inproceedings{ShahiNandini2020_FakeCovid,
   place = {US},
   title = {FakeCovid- A Multilingual Cross-domain Fact Check News Dataset for COVID-19},
@@ -9,7 +9,7 @@
   year = {2020},
   month = Jun,
 }
-'''
+"""
 
 # %% loading libraries
 
@@ -200,8 +200,8 @@ df_test = df_test[["new_text", "label"]]
 df_test.rename(columns={"new_text": "text"}, inplace=True)
 df_test = df_test.sample(frac=1, random_state=42).reset_index(drop=True)
 
-df_train.to_csv(f"fn_08_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"fn_08_multi_test.csv", sep=";", index=False)
+df_train.to_csv("fn_08_multi_train.csv", sep=";", index=False)
+df_test.to_csv("fn_08_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

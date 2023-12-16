@@ -1,26 +1,23 @@
 # %% bibtex
 
-'''
+"""
 "@article{kiesel2019datahyperpartisansemeval,
   title={Data for pan at semeval 2019 task 4: Hyperpartisan news detection},
   author={Kiesel, Johannes and Mestre, Maria and Shukla, Rishabh and Vincent, Emmanuel and Corney, David and Adineh, Payam and Stein, Benno and Potthast, Martin},
   year={2019}
 }"
-'''
+"""
 
 # %% loading libraries
-
 import html
 import os
 import re
 import warnings
-
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-
 from datasets import load_dataset
 
 warnings.filterwarnings("ignore")
@@ -104,7 +101,7 @@ def noise_mitigation(aux):
 
     try:
         string = re.sub("\.{10,}", "", string)
-    except:
+    except Exception:
         pass
     string = re.sub('\s\.', '.', string)
     string = re.sub('"{2,}', '"', string)
@@ -177,7 +174,7 @@ df_content = pd.read_csv("sd_02_multi_train_before_split.csv", sep=";")
 def remove_extra_dots(string: str) -> str:
     try:
         new_string = re.sub(r"\.{10,}", "", string)
-    except:
+    except Exception:
         new_string = string
     return new_string
 

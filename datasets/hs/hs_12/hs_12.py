@@ -1,22 +1,19 @@
-'''
+"""
 @misc{kaggle_hate_speech_terrorism,
   author       = "Kaggle",
   title        = "Terrorism And Jihadism Speech Detection",
   howpublished = "\url{https://www.kaggle.com/datasets/haithemhermessi/terrorism-and-jihadist-speech-detection?select=train.csv}",
   year         = "2020",
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
 import warnings
-
 import fasttext
 import numpy as np
-# %% loading libraries
 import pandas as pd
-# import gc
 from bs4 import BeautifulSoup
 
 warnings.filterwarnings("ignore")
@@ -133,7 +130,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)
@@ -158,7 +155,7 @@ language_identification_model = fasttext.load_model(
 # %% function to identify language
 
 
-def detect_language(instance):
+def detect_language(instance) -> str:
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
     return aux
 

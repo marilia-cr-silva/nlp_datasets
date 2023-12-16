@@ -1,4 +1,4 @@
-'''
+"""
 @inproceedings{10.1145/3194658.3194677_druglib_data,
 author = {Gr\"{a}\ss{}er, Felix and Kallumadi, Surya and Malberg, Hagen and Zaunseder, Sebastian},
 title = {Aspect-Based Sentiment Analysis of Drug Reviews Applying Cross-Domain and Cross-Data Learning},
@@ -18,17 +18,15 @@ series = {DH '18}
 
 https://archive.ics.uci.edu/ml/datasets/Drug+Review+Dataset+%28Druglib.com%29
 https://archive.ics.uci.edu/ml/machine-learning-databases/00461/drugLib_raw.zip
-'''
-
+"""
+# %% loading libraries
 import csv
 import html
 import os
 import re
 from zipfile import ZipFile
-
 import fasttext
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -164,7 +162,7 @@ def noise_mitigation(aux):
 # %% function to identify language
 
 
-def detect_language(instance):
+def detect_language(instance) -> str:
 
     aux = str(language_identification_model.predict(instance, k=1)[0][0][-2:])
 
@@ -204,8 +202,8 @@ df_test = df_test.drop_duplicates(subset=['text'], keep='first')
 df_test = df_test.sample(frac=1, random_state=42).reset_index(
     drop=True)[['text', 'label']]
 
-df_train.to_csv(f"ua_02_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"ua_02_multi_test.csv", sep=";", index=False)
+df_train.to_csv("ua_02_multi_train.csv", sep=";", index=False)
+df_test.to_csv("ua_02_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

@@ -1,4 +1,4 @@
-'''
+"""
 @InProceedings{sosea-EtAl:2022:CovidEmo:LREC,
   author    = {Sosea, Tiberiu  and  Pham, Chau  and  Tekle, Alexander  and  Caragea, Cornelia  and  Li, Junyi Jessy},
   title     = {Emotion analysis and detection during COVID-19},
@@ -10,20 +10,17 @@
   pages     = {6938--6947},
   url       = {https://aclanthology.org/2022.lrec-1.750}
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
-import warnings
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-
+import warnings
 warnings.filterwarnings("ignore")
 
 # %% function to reduce the noise
@@ -138,7 +135,7 @@ def noise_mitigation(aux):
 
     try:
         string = string.encode('latin-1').decode('utf-8')
-    except:
+    except Exception:
         pass
 
     string = re.sub('^:|^!|^\?|^\-|^\.|^\"|^\/|^\\|$\"', '', string)
@@ -187,8 +184,8 @@ df_test = df_test[["new_text", "label"]]
 df_test.rename(columns={"new_text": "text"}, inplace=True)
 df_test = df_test.sample(frac=1, random_state=42).reset_index(drop=True)
 
-df_train.to_csv(f"ed_05_multi_train.csv", sep=";", index=False)
-df_test.to_csv(f"ed_05_multi_test.csv", sep=";", index=False)
+df_train.to_csv("ed_05_multi_train.csv", sep=";", index=False)
+df_test.to_csv("ed_05_multi_test.csv", sep=";", index=False)
 
 # %%
 unique_classes = sorted(df_train['label'].unique())

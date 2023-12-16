@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # %% bibtex
 
-'''
+"""
 @InProceedings{waseem-hovy:2016:N16-2_hate_annotation,
   author    = {Waseem, Zeerak  and  Hovy, Dirk},
   title     = {Hateful Symbols or Hateful People? Predictive Features for Hate Speech Detection on Twitter},
@@ -13,15 +13,13 @@
   pages     = {88--93},
   url       = {http://www.aclweb.org/anthology/N16-2013}
 }
-'''
-
+"""
+# %% loading libraries
 import html
 import os
 import re
 import warnings
-
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split

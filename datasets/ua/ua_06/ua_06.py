@@ -10,7 +10,7 @@
 }
 """
 
-
+# %% loading libraries
 import csv
 import html
 import io
@@ -18,7 +18,6 @@ import re
 import warnings
 
 import numpy as np
-# %% loading libraries
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.model_selection import train_test_split
