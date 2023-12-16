@@ -19,7 +19,7 @@ class DirConfig:
 # %%
 class TasksRunner:
     def __init__(self):
-        self.VALID_TASKS = ["fn", "hs", "sa", "sd", "tc"]
+        self.VALID_TASKS = ["fn", "hs", "sa", "sd"]
         self.WORKING_DIR = os.getcwd()
         self.TASKS_RELATIVE_PATH = "../datasets/"
         self.TASKS_ABSOLUTE_PATH = self.get_tasks_absolute_path()
