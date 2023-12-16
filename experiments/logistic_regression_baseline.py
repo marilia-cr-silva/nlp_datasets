@@ -1,23 +1,21 @@
 """
-This .py file has the logistic regression and XGBoost baselines
+This .py file has the logistic regression baseline
 """
 
 # %% loading libraries
-
-import warnings
-
-import numpy as np
+import os
 import pandas as pd
-from scipy.stats import uniform
+import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import RandomizedSearchCV
+from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
+import warnings
 
 warnings.filterwarnings("ignore")
 
 # %% creating search spaces
-
-
 def get_search_space_hpo_logistic_regression() -> dict:
     """
     it returns the search space for the logistic regression
@@ -62,7 +60,11 @@ list_files = [['embedded_hs_01_bin_test_0_1.pkl',
               ['embedded_hs_12_bin_test_0_1.pkl',
                'embedded_hs_12_bin_train_0_1.pkl'],
               ['embedded_hs_13_multi_test.pkl',
-               'embedded_hs_13_multi_train.pkl']
+               'embedded_hs_13_multi_train.pkl'],
+              ["embedded_hs_14_bin_test_0_1.pkl",
+               "embedded_hs_14_bin_train_0_1.pkl"],
+              ["embedded_hs_15_multi_test.pkl",
+               "embedded_hs_15_multi_train.pkl"],              
               ]
 
 for item_pair in list_files:
@@ -74,27 +76,35 @@ for item_pair in list_files:
     X_test = np.array(df_test["text"].tolist())
     y_true = np.array(df_test["label"])
     dict_lr = get_search_space_hpo_logistic_regression()
-    logistic = LogisticRegression(warm_start=False,
-                                  n_jobs=-1,
-                                  l1_ratio=None,
-                                  verbose=0,
-                                  max_iter=100,
-                                  dual=False,
-                                  tol=10**-4,
-                                  fit_intercept=True,
-                                  intercept_scaling=1,
-                                  class_weight=None
-                                  )
-    clf = RandomizedSearchCV(estimator=logistic,
-                             param_distributions=dict_lr,
-                             random_state=42,
-                             scoring="balanced_accuracy")  # cv=5 by default
+    logistic = LogisticRegression(
+        warm_start=False,
+        n_jobs=-1,
+        l1_ratio=None,
+        verbose=0,
+        max_iter=100,
+        dual=False,
+        tol=10**-4,
+        fit_intercept=True,
+        intercept_scaling=1,
+        class_weight=None,
+    )
+    clf = RandomizedSearchCV(
+        estimator=logistic,
+        param_distributions=dict_lr,
+        random_state=42,
+        scoring="balanced_accuracy",
+    )  # cv=5 by default
     r_search = clf.fit(X_train, y_train)
     y_pred = r_search.predict(X_test)
 
-    lr_bal_acc_score = balanced_accuracy_score(y_true, y_pred)
-    print(
-        f"the balanced accuracy of {item_pair[0][9:-4]} is {lr_bal_acc_score}")
-    with open(f"bal_acc_{item_pair[0][9:-4]}.txt", "w") as new_file:
+    bal_acc_score = balanced_accuracy_score(y_true, y_pred)
+    try:
+      f1_calc_score = f1_score(y_true, y_pred, average="macro")
+    except Exception:
+      f1_calc_score = 0
+    acc_score = accuracy_score(y_true, y_pred)
+    print(f"the balanced accuracy of {item_pair[0][9:-4]} is {bal_acc_score}")
+    with open(f"logistic_regression_bal_acc_{item_pair[0][9:-4]}.txt", "w") as new_file:
         new_file.write(
-            f"{item_pair[0][9:-4]};{lr_bal_acc_score};logistic regression\n")
+            f"{item_pair[0][9:-4]}; acc: {acc_score}; bal acc: {bal_acc_score}; f1-score: {f1_calc_score}; logistic_regression\n"
+        )
