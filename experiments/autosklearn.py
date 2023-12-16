@@ -1,4 +1,5 @@
 # %%
+"""
 @inproceedings{autosklearn_2015,
 author = {Feurer, Matthias and Klein, Aaron and Eggensperger, Katharina and Springenberg, Jost Tobias and Blum, Manuel and Hutter, Frank},
 title = {Efficient and Robust Automated Machine Learning},
@@ -6,7 +7,7 @@ year = {2015},
 booktitle = {Proceedings of the 28th International Conference on Neural Information Processing Systems},
 pages = {2755–2763},
 }
-
+"""
 # %%
 import os
 import autosklearn.classification
