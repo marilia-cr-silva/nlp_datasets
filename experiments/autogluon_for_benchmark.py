@@ -47,7 +47,11 @@ list_files = [['embedded_hs_01_bin_test_0_1.pkl',
               ['embedded_hs_12_bin_test_0_1.pkl',
                'embedded_hs_12_bin_train_0_1.pkl'],
               ['embedded_hs_13_multi_test.pkl',
-               'embedded_hs_13_multi_train.pkl']
+               'embedded_hs_13_multi_train.pkl'],
+              ["embedded_hs_14_bin_test_0_1.pkl",
+               "embedded_hs_14_bin_train_0_1.pkl"],
+              ["embedded_hs_15_multi_test.pkl",
+               "embedded_hs_15_multi_train.pkl"],
               ]
 
 for item_pair in list_files:
