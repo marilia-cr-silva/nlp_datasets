@@ -11,12 +11,13 @@ This .py file runs the AutoGluon AutoML System
 """
 # %%
 import os
-import warnings
-
 import numpy as np
 import pandas as pd
 from autogluon.tabular import TabularDataset, TabularPredictor
 from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
+import warnings
 
 warnings.filterwarnings("ignore")
 
@@ -75,6 +76,13 @@ for item_pair in list_files:
     predictor.fit(X_train, time_limit=900, presets='high_quality')
     y_pred = predictor.predict(X_test)
     bal_acc_score = balanced_accuracy_score(y_true, y_pred)
+    try:
+      f1_calc_score = f1_score(y_true, y_pred, average="macro")
+    except Exception:
+      f1_calc_score = 0
+    acc_score = accuracy_score(y_true, y_pred)
     print(f"the balanced accuracy of {item_pair[0][9:-4]} is {bal_acc_score}")
     with open(f"autogluon_bal_acc_{item_pair[0][9:-4]}.txt", "w") as new_file:
-        new_file.write(f"{item_pair[0][9:-4]};{bal_acc_score};autogluon\n")
+        new_file.write(
+            f"{item_pair[0][9:-4]}; acc: {acc_score}; bal acc: {bal_acc_score}; f1-score: {f1_calc_score}; autogluon\n"
+        )
